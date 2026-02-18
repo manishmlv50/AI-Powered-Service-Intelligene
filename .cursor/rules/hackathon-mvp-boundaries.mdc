@@ -1,0 +1,28 @@
+---
+description: Hackathon/MVP scope and synthetic-data-only boundaries for AI-Powered Service Intelligence
+alwaysApply: true
+---
+
+# Hackathon and MVP Boundaries
+
+This project is scoped for the **Agents League** hackathon and MVP only. Keep all work within these boundaries.
+
+## Scope
+
+- **In scope:** Intake, Estimation, Communication, ETA/Risk agents; Internal Web Portal; Customer Chatbot; Microsoft Foundry; one LLM, one RAG index; synthetic/mock data only.
+- **Out of scope:** Full ERP, real insurance APIs, real OBD hardware, telephony, production SSO, multi-region DR.
+
+## Synthetic and Simulated Data
+
+- **Prefer synthetic or mock data** for any external system: insurance rules, parts pricing, labor rates, OBD input, job cards, customers.
+- **Do not** integrate real insurance APIs, real OBD devices, or telephony. Use config files (JSON/YAML), static CSVs, or in-memory/DB seed data.
+- **Reference:** [docs/SYNTHETIC_DATA_AND_DATA_MODEL.md](docs/SYNTHETIC_DATA_AND_DATA_MODEL.md) for what to generate and data models.
+
+## Implementation Guidelines
+
+- **Agents:** One Orchestrator + four specialists (Intake, Estimation, Communication, ETA Risk) via Foundry Connected Agents; no custom router; depth 2 only.
+- **Data layer:** Agents access data via tools (OpenAPI, Azure Functions), not direct DB connections from Foundry.
+- **Frontend:** Minimal UI for portal and chatbot; no full ERP or enterprise SSO for MVP.
+- **ETA/Risk:** Basic rule-based or simple model only; no full forecasting stack.
+
+When suggesting features, libraries, or integrations, **reject** anything that requires real external APIs or production-grade infra unless the PRD or TECH_STACK explicitly allows it.
