@@ -1,6 +1,18 @@
 # Wireframes – AI-Powered Service Intelligence
 
-This document describes wireframes for the **Internal Web Portal** (Service Advisor / Workshop Manager) and the **Customer Chatbot**, based on the [PRD](PRD.md), [Tech Stack](TECH_STACK.md), and [Synthetic Data and Data Model](SYNTHETIC_DATA_AND_DATA_MODEL.md). Use it to build screens in **Figma**, **Sketch**, **Balsamiq**, or the included **HTML wireframe** (`wireframes/index.html`).
+This document describes wireframes for the **Internal Web Portal** (Service Advisor / Workshop Manager) and the **Customer** view, based on the [PRD](PRD.md), [Tech Stack](TECH_STACK.md), and [Synthetic Data and Data Model](SYNTHETIC_DATA_AND_DATA_MODEL.md).
+
+## Interactive HTML Wireframes (MVP)
+
+| File | Persona | Purpose |
+|------|---------|--------|
+| **[wireframes/index.html](wireframes/index.html)** | Service Advisor | New Intake flow; ERP-style sidebar; Job Cards list; flow ends when estimate is sent for approval. No insurance in estimates. |
+| **[wireframes/workshop-manager.html](wireframes/workshop-manager.html)** | Workshop Manager | Tracking dashboard; Job Cards (view only); AI Assistant on every screen. |
+| **[wireframes/customer.html](wireframes/customer.html)** | Customer | Receive estimate, Accept/Reject, ask questions, revised estimate flow, completed job + Review. AI Assistant (FAB) available. |
+
+**Plan and edge cases:** [wireframes/WIREFRAME_PLAN.md](wireframes/WIREFRAME_PLAN.md)
+
+**AI Assistant:** A floating button (FAB) opens the AI panel on every screen in all three HTML files.
 
 ---
 
