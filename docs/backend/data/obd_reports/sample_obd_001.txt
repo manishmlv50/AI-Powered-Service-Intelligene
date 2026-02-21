@@ -1,0 +1,18 @@
+OBD-II Diagnostic Report
+Vehicle: Maruti Suzuki Swift 2021
+VIN: MA3EWB22S12345678
+Scan Date: 2026-02-03
+
+Detected Trouble Codes:
+--------------------------------
+P0301 - Cylinder 1 Misfire Detected
+P0128 - Coolant Thermostat Regulating Temperature
+
+Freeze Frame Data:
+Engine RPM: 1850 rpm
+Vehicle Speed: 42 km/h
+Coolant Temperature: 102°C
+Fuel Trim Bank 1: +12%
+
+Status:
+Check Engine Light: ON

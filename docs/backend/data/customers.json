@@ -1,0 +1,182 @@
+[
+    {
+        "id": "C001",
+        "name": "Rohit Sharma",
+        "phone": "+919876543210",
+        "email": "rohit@email.com",
+        "city": "Mumbai",
+        "state": "Maharashtra",
+        "preferred_contact": "chatbot"
+    },
+    {
+        "id": "C002",
+        "name": "Priya Verma",
+        "phone": "+919812345678",
+        "email": "priya@email.com",
+        "city": "Delhi",
+        "state": "Delhi",
+        "preferred_contact": "chatbot"
+    },
+    {
+        "id": "C003",
+        "name": "Arjun Reddy",
+        "phone": "+919845612345",
+        "email": "arjun@email.com",
+        "city": "Hyderabad",
+        "state": "Telangana",
+        "preferred_contact": "email"
+    },
+    {
+        "id": "C004",
+        "name": "Sneha Iyer",
+        "phone": "+919998877665",
+        "email": "sneha@email.com",
+        "city": "Chennai",
+        "state": "Tamil Nadu",
+        "preferred_contact": "chatbot"
+    },
+    {
+        "id": "C005",
+        "name": "Vikram Singh",
+        "phone": "+919934567890",
+        "email": "vikram@email.com",
+        "city": "Jaipur",
+        "state": "Rajasthan",
+        "preferred_contact": "chatbot"
+    },
+    {
+        "id": "C006",
+        "name": "Ananya Gupta",
+        "phone": "+919887766554",
+        "email": "ananya@email.com",
+        "city": "Pune",
+        "state": "Maharashtra",
+        "preferred_contact": "email"
+    },
+    {
+        "id": "C007",
+        "name": "Karan Malhotra",
+        "phone": "+919812334455",
+        "email": "karan@email.com",
+        "city": "Gurugram",
+        "state": "Haryana",
+        "preferred_contact": "chatbot"
+    },
+    {
+        "id": "C008",
+        "name": "Meera Nair",
+        "phone": "+919876112233",
+        "email": "meera@email.com",
+        "city": "Kochi",
+        "state": "Kerala",
+        "preferred_contact": "email"
+    },
+    {
+        "id": "C009",
+        "name": "Aditya Rao",
+        "phone": "+919900112233",
+        "email": "aditya@email.com",
+        "city": "Bengaluru",
+        "state": "Karnataka",
+        "preferred_contact": "chatbot"
+    },
+    {
+        "id": "C010",
+        "name": "Neha Kapoor",
+        "phone": "+919811223344",
+        "email": "neha@email.com",
+        "city": "Chandigarh",
+        "state": "Punjab",
+        "preferred_contact": "chatbot"
+    },
+    {
+        "id": "C011",
+        "name": "Manish Patel",
+        "phone": "+919811998877",
+        "email": "manish@email.com",
+        "city": "Ahmedabad",
+        "state": "Gujarat",
+        "preferred_contact": "chatbot"
+    },
+    {
+        "id": "C012",
+        "name": "Divya Joshi",
+        "phone": "+919877665544",
+        "email": "divya@email.com",
+        "city": "Lucknow",
+        "state": "Uttar Pradesh",
+        "preferred_contact": "email"
+    },
+    {
+        "id": "C013",
+        "name": "Ramesh Kumar",
+        "phone": "+919844556677",
+        "email": "ramesh@email.com",
+        "city": "Patna",
+        "state": "Bihar",
+        "preferred_contact": "chatbot"
+    },
+    {
+        "id": "C014",
+        "name": "Sanjay Das",
+        "phone": "+919833221144",
+        "email": "sanjay@email.com",
+        "city": "Kolkata",
+        "state": "West Bengal",
+        "preferred_contact": "email"
+    },
+    {
+        "id": "C015",
+        "name": "Pooja Mehta",
+        "phone": "+919822334455",
+        "email": "pooja@email.com",
+        "city": "Surat",
+        "state": "Gujarat",
+        "preferred_contact": "chatbot"
+    },
+    {
+        "id": "C016",
+        "name": "Nikhil Jain",
+        "phone": "+919811556677",
+        "email": "nikhil@email.com",
+        "city": "Indore",
+        "state": "Madhya Pradesh",
+        "preferred_contact": "chatbot"
+    },
+    {
+        "id": "C017",
+        "name": "Harsh Vardhan",
+        "phone": "+919822667788",
+        "email": "harsh@email.com",
+        "city": "Noida",
+        "state": "Uttar Pradesh",
+        "preferred_contact": "chatbot"
+    },
+    {
+        "id": "C018",
+        "name": "Tanya Arora",
+        "phone": "+919855443322",
+        "email": "tanya@email.com",
+        "city": "Ludhiana",
+        "state": "Punjab",
+        "preferred_contact": "email"
+    },
+    {
+        "id": "C019",
+        "name": "Abhishek Ghosh",
+        "phone": "+919844112233",
+        "email": "abhishek@email.com",
+        "city": "Bhubaneswar",
+        "state": "Odisha",
+        "preferred_contact": "chatbot"
+    },
+    {
+        "id": "C020",
+        "name": "Ishita Banerjee",
+        "phone": "+919833556677",
+        "email": "ishita@email.com",
+        "city": "Ranchi",
+        "state": "Jharkhand",
+        "preferred_contact": "chatbot"
+    }
+]

@@ -1,0 +1,202 @@
+[
+    {
+        "id": "V001",
+        "customer_id": "C001",
+        "make": "Maruti Suzuki",
+        "model": "Swift",
+        "year": 2021,
+        "fuel_type": "petrol",
+        "transmission": "manual",
+        "registration_number": "MH01AB1234"
+    },
+    {
+        "id": "V002",
+        "customer_id": "C002",
+        "make": "Hyundai",
+        "model": "Creta",
+        "year": 2022,
+        "fuel_type": "diesel",
+        "transmission": "automatic",
+        "registration_number": "DL05CD5678"
+    },
+    {
+        "id": "V003",
+        "customer_id": "C003",
+        "make": "Tata",
+        "model": "Nexon",
+        "year": 2020,
+        "fuel_type": "petrol",
+        "transmission": "manual",
+        "registration_number": "TS09EF1122"
+    },
+    {
+        "id": "V004",
+        "customer_id": "C004",
+        "make": "Mahindra",
+        "model": "XUV700",
+        "year": 2023,
+        "fuel_type": "diesel",
+        "transmission": "automatic",
+        "registration_number": "TN10GH3344"
+    },
+    {
+        "id": "V005",
+        "customer_id": "C005",
+        "make": "Toyota",
+        "model": "Innova Crysta",
+        "year": 2019,
+        "fuel_type": "diesel",
+        "transmission": "manual",
+        "registration_number": "RJ14JK7788"
+    },
+    {
+        "id": "V006",
+        "customer_id": "C006",
+        "make": "Honda",
+        "model": "City",
+        "year": 2018,
+        "fuel_type": "petrol",
+        "transmission": "automatic",
+        "registration_number": "MH12LM9988"
+    },
+    {
+        "id": "V007",
+        "customer_id": "C007",
+        "make": "Kia",
+        "model": "Seltos",
+        "year": 2021,
+        "fuel_type": "diesel",
+        "transmission": "manual",
+        "registration_number": "HR26PQ1122"
+    },
+    {
+        "id": "V008",
+        "customer_id": "C008",
+        "make": "Renault",
+        "model": "Kwid",
+        "year": 2019,
+        "fuel_type": "petrol",
+        "transmission": "manual",
+        "registration_number": "KL07UV2233"
+    },
+    {
+        "id": "V009",
+        "customer_id": "C009",
+        "make": "Hyundai",
+        "model": "i20",
+        "year": 2020,
+        "fuel_type": "petrol",
+        "transmission": "manual",
+        "registration_number": "KA03XY7788"
+    },
+    {
+        "id": "V010",
+        "customer_id": "C010",
+        "make": "Maruti Suzuki",
+        "model": "Baleno",
+        "year": 2022,
+        "fuel_type": "petrol",
+        "transmission": "automatic",
+        "registration_number": "PB10CD8899"
+    },
+    {
+        "id": "V011",
+        "customer_id": "C011",
+        "make": "Tata",
+        "model": "Harrier",
+        "year": 2021,
+        "fuel_type": "diesel",
+        "transmission": "manual",
+        "registration_number": "GJ01GH5566"
+    },
+    {
+        "id": "V012",
+        "customer_id": "C012",
+        "make": "Mahindra",
+        "model": "Thar",
+        "year": 2023,
+        "fuel_type": "diesel",
+        "transmission": "manual",
+        "registration_number": "UP32JK4455"
+    },
+    {
+        "id": "V013",
+        "customer_id": "C013",
+        "make": "Toyota",
+        "model": "Glanza",
+        "year": 2021,
+        "fuel_type": "petrol",
+        "transmission": "manual",
+        "registration_number": "BR01MN7788"
+    },
+    {
+        "id": "V014",
+        "customer_id": "C014",
+        "make": "Skoda",
+        "model": "Slavia",
+        "year": 2022,
+        "fuel_type": "petrol",
+        "transmission": "automatic",
+        "registration_number": "WB02KL3344"
+    },
+    {
+        "id": "V015",
+        "customer_id": "C015",
+        "make": "Volkswagen",
+        "model": "Polo",
+        "year": 2019,
+        "fuel_type": "petrol",
+        "transmission": "manual",
+        "registration_number": "GJ05LM7788"
+    },
+    {
+        "id": "V016",
+        "customer_id": "C016",
+        "make": "MG",
+        "model": "Hector",
+        "year": 2022,
+        "fuel_type": "diesel",
+        "transmission": "automatic",
+        "registration_number": "MP09AB6677"
+    },
+    {
+        "id": "V017",
+        "customer_id": "C017",
+        "make": "Hyundai",
+        "model": "Venue",
+        "year": 2021,
+        "fuel_type": "petrol",
+        "transmission": "manual",
+        "registration_number": "UP16CD1122"
+    },
+    {
+        "id": "V018",
+        "customer_id": "C018",
+        "make": "Maruti Suzuki",
+        "model": "Brezza",
+        "year": 2020,
+        "fuel_type": "diesel",
+        "transmission": "manual",
+        "registration_number": "PB08EF5566"
+    },
+    {
+        "id": "V019",
+        "customer_id": "C019",
+        "make": "Tata",
+        "model": "Punch",
+        "year": 2023,
+        "fuel_type": "petrol",
+        "transmission": "manual",
+        "registration_number": "OD02GH3344"
+    },
+    {
+        "id": "V020",
+        "customer_id": "C020",
+        "make": "Mahindra",
+        "model": "Scorpio-N",
+        "year": 2023,
+        "fuel_type": "diesel",
+        "transmission": "automatic",
+        "registration_number": "JH01JK7788"
+    }
+]
