@@ -1,6 +1,7 @@
 """Application entrypoint."""
 from fastapi import FastAPI
 from app.api.intake_routes import router as intake_router
+from app.api.agent_routes import router as agent_router
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 from pathlib import Path
@@ -17,6 +18,7 @@ STATIC_DIR = APP_DIR / "static"
 app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
 app.include_router(intake_router, prefix="/api")
 app.include_router(speech_router, prefix="/api")
+app.include_router(agent_router, prefix="/api")
 
 @app.get("/speech-ui")
 async def speech_ui():
