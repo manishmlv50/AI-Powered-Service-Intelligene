@@ -14,9 +14,21 @@ CREATE TABLE Customers (
     email NVARCHAR(100) NULL,
     preferredContact NVARCHAR(20) DEFAULT 'chatbot'
 );
-
 -- =============================================
 -- 2. Vehicles
+-- =============================================
+
+CREATE TABLE Employee (
+    id UNIQUEIDENTIFIER PRIMARY KEY,
+    name NVARCHAR(100) NOT NULL,
+    phone NVARCHAR(20) NULL,
+    email NVARCHAR(100) NULL,
+    preferredContact NVARCHAR(20) DEFAULT 'chatbot'
+);
+
+
+-- =============================================
+-- 3. Vehicles
 -- =============================================
 CREATE TABLE Vehicles (
     id UNIQUEIDENTIFIER PRIMARY KEY,
@@ -29,7 +41,7 @@ CREATE TABLE Vehicles (
 );
 
 -- =============================================
--- 3. Parts
+-- 4. Parts
 -- =============================================
 CREATE TABLE Parts (
     id NVARCHAR(50) PRIMARY KEY,
@@ -40,7 +52,7 @@ CREATE TABLE Parts (
 );
 
 -- =============================================
--- 4. Labor Operations
+-- 5. Labor Operations
 -- =============================================
 CREATE TABLE Labor_Operations (
     id NVARCHAR(50) PRIMARY KEY,
@@ -51,7 +63,7 @@ CREATE TABLE Labor_Operations (
 );
 
 -- =============================================
--- 5. Fault Code Mappings
+-- 6. Fault Code Mappings
 -- =============================================
 CREATE TABLE Fault_Code_Mappings (
     faultCode NVARCHAR(10) PRIMARY KEY,
@@ -70,7 +82,7 @@ CREATE TABLE FaultCode_Parts (
 );
 
 -- =============================================
--- 6. Job Cards
+-- 7. Job Cards
 -- =============================================
 CREATE TABLE Job_Cards (
     id UNIQUEIDENTIFIER PRIMARY KEY,
@@ -88,7 +100,7 @@ CREATE TABLE Job_Cards (
 );
 
 -- =============================================
--- 7. OBD Reports
+-- 8. OBD Reports
 -- =============================================
 CREATE TABLE OBD_Reports (
     id NVARCHAR(50) PRIMARY KEY,
@@ -109,7 +121,7 @@ CREATE TABLE OBD_Error_Codes (
 );
 
 -- =============================================
--- 8. Estimates
+-- 9. Estimates
 -- =============================================
 CREATE TABLE Estimates (
     id UNIQUEIDENTIFIER PRIMARY KEY,
@@ -124,7 +136,7 @@ CREATE TABLE Estimates (
 );
 
 -- =============================================
--- 9. Estimate Line Items
+-- 10. Estimate Line Items
 -- =============================================
 CREATE TABLE Estimate_Line_Items (
     id UNIQUEIDENTIFIER PRIMARY KEY,
