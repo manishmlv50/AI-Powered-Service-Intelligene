@@ -1,0 +1,72 @@
+[
+  {
+    "faultCode": "P0301",
+    "partIds": ["P001"], 
+    "laborOperationId": "L001",
+    "warrantyEligible": false,
+    "description": "Cylinder 1 Misfire Detected - check spark plug and ignition coil"
+  },
+  {
+    "faultCode": "P0302",
+    "partIds": ["P002"],
+    "laborOperationId": "L002",
+    "warrantyEligible": false,
+    "description": "Cylinder 2 Misfire Detected"
+  },
+  {
+    "faultCode": "P0420",
+    "partIds": ["P003","P004"],
+    "laborOperationId": "L003",
+    "warrantyEligible": true,
+    "description": "Catalyst System Efficiency Below Threshold (Bank 1)"
+  },
+  {
+    "faultCode": "P0171",
+    "partIds": ["P005"],
+    "laborOperationId": "L004",
+    "warrantyEligible": false,
+    "description": "System Too Lean (Bank 1) - check fuel system"
+  },
+  {
+    "faultCode": "P0087",
+    "partIds": ["P006"],
+    "laborOperationId": "L005",
+    "warrantyEligible": false,
+    "description": "Fuel Rail/System Pressure Too Low"
+  },
+  {
+    "faultCode": "P0128",
+    "partIds": ["P007"],
+    "laborOperationId": "L006",
+    "warrantyEligible": false,
+    "description": "Coolant Thermostat Regulating Temperature"
+  },
+  {
+    "faultCode": "C1234",
+    "partIds": ["P008"],
+    "laborOperationId": "L007",
+    "warrantyEligible": false,
+    "description": "Front Brake Pad Wear Detected"
+  },
+  {
+    "faultCode": "B2101",
+    "partIds": ["P009"],
+    "laborOperationId": "L008",
+    "warrantyEligible": false,
+    "description": "Battery Voltage Low"
+  },
+  {
+    "faultCode": "P0700",
+    "partIds": ["P010"],
+    "laborOperationId": "L009",
+    "warrantyEligible": true,
+    "description": "Transmission Control System Malfunction"
+  },
+  {
+    "faultCode": "P0740",
+    "partIds": ["P011"],
+    "laborOperationId": "L010",
+    "warrantyEligible": true,
+    "description": "Torque Converter Clutch Circuit Malfunction"
+  }
+]

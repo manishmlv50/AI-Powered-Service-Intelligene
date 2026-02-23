@@ -1,0 +1,18 @@
+OBD-II Diagnostic Report
+Vehicle: Hyundai Creta 2022
+VIN: MALC1234AB5678901
+Scan Date: 2026-02-06
+
+Detected Trouble Codes:
+--------------------------------
+P0217 - Engine Overheating Condition
+P0087 - Fuel Rail/System Pressure Too Low
+
+Freeze Frame Data:
+Engine RPM: 2200 rpm
+Vehicle Speed: 60 km/h
+Coolant Temperature: 115°C
+Fuel Pressure: Low
+
+Status:
+Check Engine Light: ON

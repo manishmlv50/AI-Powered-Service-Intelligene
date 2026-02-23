@@ -1,0 +1,205 @@
+[
+    {
+        "id": "O001",
+        "job_card_id": "J001",
+        "error_codes": [
+            "P0301",
+            "P0128"
+        ],
+        "summary": "Cylinder 1 misfire detected; thermostat regulating temperature high",
+        "severity": "high",
+        "obdDocumentId": "sample_obd_001.txt"
+    },
+    {
+        "id": "O002",
+        "job_card_id": "J002",
+        "error_codes": [
+            "P0217",
+            "P0087"
+        ],
+        "summary": "Engine overheating; fuel rail pressure low",
+        "severity": "high",
+        "obdDocumentId": "sample_obd_002.txt"
+    },
+    {
+        "id": "O003",
+        "job_card_id": "J003",
+        "error_codes": [
+            "P0420"
+        ],
+        "summary": "Catalyst system efficiency below threshold; possible catalytic converter issue",
+        "severity": "medium",
+        "obdDocumentId": "sample_obd_003.txt"
+    },
+    {
+        "id": "O004",
+        "job_card_id": "J004",
+        "error_codes": [
+            "C1234"
+        ],
+        "summary": "Front brake pads worn out; ABS sensor reading inconsistent",
+        "severity": "medium",
+        "obdDocumentId": "sample_obd_004.txt"
+    },
+    {
+        "id": "O005",
+        "job_card_id": "J005",
+        "error_codes": [
+            "B2101"
+        ],
+        "summary": "Battery voltage below optimal range; charging system may be faulty",
+        "severity": "high",
+        "obdDocumentId": "sample_obd_005.txt"
+    },
+    {
+        "id": "O006",
+        "job_card_id": "J006",
+        "error_codes": [
+            "P0700"
+        ],
+        "summary": "Transmission control system malfunction detected",
+        "severity": "high",
+        "obdDocumentId": "sample_obd_006.txt"
+    },
+    {
+        "id": "O007",
+        "job_card_id": "J007",
+        "error_codes": [
+            "P0740"
+        ],
+        "summary": "Torque converter clutch circuit malfunction; possible hydraulic issue",
+        "severity": "medium",
+        "obdDocumentId": "sample_obd_007.txt"
+    },
+    {
+        "id": "O008",
+        "job_card_id": "J008",
+        "error_codes": [
+            "P0171"
+        ],
+        "summary": "Fuel system too lean (Bank 1); air-fuel ratio imbalance",
+        "severity": "medium",
+        "obdDocumentId": "sample_obd_008.txt"
+    },
+    {
+        "id": "O009",
+        "job_card_id": "J009",
+        "error_codes": [
+            "P0302"
+        ],
+        "summary": "Cylinder 2 misfire detected; ignition coil suspected",
+        "severity": "medium",
+        "obdDocumentId": "sample_obd_009.txt"
+    },
+    {
+        "id": "O010",
+        "job_card_id": "J010",
+        "error_codes": [
+            "P0420"
+        ],
+        "summary": "Catalyst efficiency below threshold; check catalytic converter and oxygen sensors",
+        "severity": "medium",
+        "obdDocumentId": "sample_obd_010.txt"
+    },
+    {
+        "id": "O011",
+        "job_card_id": "J011",
+        "error_codes": [
+            "P0130"
+        ],
+        "summary": "Oxygen sensor circuit malfunction detected; possible wiring issue",
+        "severity": "medium",
+        "obdDocumentId": "sample_obd_011.txt"
+    },
+    {
+        "id": "O012",
+        "job_card_id": "J012",
+        "error_codes": [
+            "C1245"
+        ],
+        "summary": "ABS warning light active; sensor reading inconsistent",
+        "severity": "medium",
+        "obdDocumentId": "sample_obd_012.txt"
+    },
+    {
+        "id": "O013",
+        "job_card_id": "J013",
+        "error_codes": [
+            "C1250"
+        ],
+        "summary": "Brake fluid low; check master cylinder and fluid level sensor",
+        "severity": "low",
+        "obdDocumentId": "sample_obd_013.txt"
+    },
+    {
+        "id": "O014",
+        "job_card_id": "J014",
+        "error_codes": [
+            "P0455"
+        ],
+        "summary": "Evaporative emission system leak; fuel cap or hoses may be faulty",
+        "severity": "medium",
+        "obdDocumentId": "sample_obd_014.txt"
+    },
+    {
+        "id": "O015",
+        "job_card_id": "J015",
+        "error_codes": [
+            "P0301"
+        ],
+        "summary": "Cylinder 1 misfire detected; ignition coil suspected",
+        "severity": "medium",
+        "obdDocumentId": "sample_obd_015.txt"
+    },
+    {
+        "id": "O016",
+        "job_card_id": "J016",
+        "error_codes": [
+            "P0420"
+        ],
+        "summary": "Catalyst system below efficiency threshold; emission performance affected",
+        "severity": "medium",
+        "obdDocumentId": "sample_obd_016.txt"
+    },
+    {
+        "id": "O017",
+        "job_card_id": "J017",
+        "error_codes": [
+            "P0135"
+        ],
+        "summary": "Oxygen sensor heater circuit malfunction; may affect air-fuel ratio",
+        "severity": "medium",
+        "obdDocumentId": "sample_obd_017.txt"
+    },
+    {
+        "id": "O018",
+        "job_card_id": "J018",
+        "error_codes": [
+            "P0122"
+        ],
+        "summary": "Throttle position sensor voltage low; engine response affected",
+        "severity": "medium",
+        "obdDocumentId": "sample_obd_018.txt"
+    },
+    {
+        "id": "O019",
+        "job_card_id": "J019",
+        "error_codes": [
+            "B2102"
+        ],
+        "summary": "Battery not charging properly; alternator output low",
+        "severity": "high",
+        "obdDocumentId": "sample_obd_019.txt"
+    },
+    {
+        "id": "O020",
+        "job_card_id": "J020",
+        "error_codes": [
+            "P0303",
+            "P0420"
+        ],
+        "summary": "Cylinder 3 misfire and catalyst efficiency below threshold",
+        "severity": "medium",
+        "obdDocumentId": "sample_obd_020.txt"
+    }
+]

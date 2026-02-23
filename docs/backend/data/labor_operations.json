@@ -1,0 +1,122 @@
+[
+    {
+        "id": "L001",
+        "name": "General Service",
+        "hourly_rate": 800,
+        "estimated_hours": 2
+    },
+    {
+        "id": "L002",
+        "name": "Brake Pad Replacement",
+        "hourly_rate": 900,
+        "estimated_hours": 2
+    },
+    {
+        "id": "L003",
+        "name": "Brake Disc Replacement",
+        "hourly_rate": 950,
+        "estimated_hours": 3
+    },
+    {
+        "id": "L004",
+        "name": "Battery Replacement",
+        "hourly_rate": 700,
+        "estimated_hours": 1
+    },
+    {
+        "id": "L005",
+        "name": "Alternator Replacement",
+        "hourly_rate": 950,
+        "estimated_hours": 2
+    },
+    {
+        "id": "L006",
+        "name": "Clutch Replacement",
+        "hourly_rate": 1200,
+        "estimated_hours": 5
+    },
+    {
+        "id": "L007",
+        "name": "AC Repair",
+        "hourly_rate": 1100,
+        "estimated_hours": 3
+    },
+    {
+        "id": "L008",
+        "name": "Fuel Pump Replacement",
+        "hourly_rate": 1000,
+        "estimated_hours": 3
+    },
+    {
+        "id": "L009",
+        "name": "Radiator Replacement",
+        "hourly_rate": 1000,
+        "estimated_hours": 3
+    },
+    {
+        "id": "L010",
+        "name": "Timing Belt Replacement",
+        "hourly_rate": 1100,
+        "estimated_hours": 4
+    },
+    {
+        "id": "L011",
+        "name": "Suspension Repair",
+        "hourly_rate": 1000,
+        "estimated_hours": 3
+    },
+    {
+        "id": "L012",
+        "name": "Wheel Bearing Replacement",
+        "hourly_rate": 900,
+        "estimated_hours": 2
+    },
+    {
+        "id": "L013",
+        "name": "Throttle Body Cleaning",
+        "hourly_rate": 850,
+        "estimated_hours": 2
+    },
+    {
+        "id": "L014",
+        "name": "EGR Valve Replacement",
+        "hourly_rate": 1000,
+        "estimated_hours": 3
+    },
+    {
+        "id": "L015",
+        "name": "Headlight Replacement",
+        "hourly_rate": 600,
+        "estimated_hours": 1
+    },
+    {
+        "id": "L016",
+        "name": "OBD Diagnostics",
+        "hourly_rate": 800,
+        "estimated_hours": 1
+    },
+    {
+        "id": "L017",
+        "name": "Cooling System Flush",
+        "hourly_rate": 900,
+        "estimated_hours": 2
+    },
+    {
+        "id": "L018",
+        "name": "Transmission Service",
+        "hourly_rate": 1100,
+        "estimated_hours": 4
+    },
+    {
+        "id": "L019",
+        "name": "Engine Overhaul",
+        "hourly_rate": 1500,
+        "estimated_hours": 10
+    },
+    {
+        "id": "L020",
+        "name": "AC Gas Refill",
+        "hourly_rate": 850,
+        "estimated_hours": 1
+    }
+]
