@@ -1,0 +1,17 @@
+OBD-II Diagnostic Report
+Vehicle: Tata Nexon 2020
+VIN: TATANX20VIN000123
+Scan Date: 2026-01-25
+
+Detected Trouble Codes:
+--------------------------------
+P0420 - Catalyst System Efficiency Below Threshold (Bank 1)
+
+Freeze Frame Data:
+Engine RPM: 1900 rpm
+Vehicle Speed: 50 km/h
+Coolant Temperature: 98°C
+Fuel Trim Bank 1: +5%
+
+Status:
+Check Engine Light: ON

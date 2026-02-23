@@ -1,0 +1,16 @@
+OBD-II Diagnostic Report
+Vehicle: Kia Seltos 2021
+VIN: KSEL21VIN000789
+Scan Date: 2026-02-01
+
+Detected Trouble Codes:
+--------------------------------
+B2101 - Battery Voltage Low
+
+Freeze Frame Data:
+Engine RPM: 0 rpm
+Vehicle Speed: 0 km/h
+Battery Voltage: 11.3 V
+
+Status:
+Check Engine Light: ON

@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Service Intelligence – Workshop Manager</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: system-ui, sans-serif; background: #f5f5f5; color: #333; }
+    .app { display: flex; min-height: 100vh; }
+    .site-header { display: flex; align-items: center; justify-content: space-between; padding: 0.75rem 1.5rem; background: #fff; border-bottom: 2px solid #333; }
+    .site-header .logo { font-weight: bold; font-size: 1.1rem; }
+    .site-header .user { font-size: 0.9rem; color: #555; }
+    .site-header .user span { color: #333; }
+    .site-header a { margin-left: 1rem; color: #666; text-decoration: none; }
+    .sidebar { width: 240px; background: #e8e8e8; border-right: 2px solid #999; padding: 1rem 0; flex-shrink: 0; }
+    .sidebar h2 { margin: 0 1rem 0.5rem; font-size: 0.8rem; color: #555; text-transform: uppercase; }
+    .sidebar nav a { display: block; padding: 0.5rem 1rem; color: #333; text-decoration: none; border-left: 3px solid transparent; }
+    .sidebar nav a:hover { background: #ddd; }
+    .sidebar nav a.active { border-left-color: #333; background: #ddd; }
+    .sidebar .divider { height: 1px; background: #999; margin: 0.5rem 1rem; }
+    .main { flex: 1; padding: 1.5rem; overflow: auto; }
+    .screen { display: none; max-width: 920px; margin: 0 auto; }
+    .screen.active { display: block; }
+    .wf-block { border: 2px dashed #999; padding: 1rem; margin-bottom: 1rem; background: #fff; }
+    .wf-label { font-size: 0.75rem; color: #666; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.5rem; }
+    .wf-table { width: 100%; border-collapse: collapse; border: 1px solid #999; }
+    .wf-table th, .wf-table td { border: 1px solid #999; padding: 0.5rem 0.75rem; text-align: left; background: #fff; }
+    .wf-table th { background: #e0e0e0; font-size: 0.75rem; color: #444; }
+    .wf-btn { display: inline-block; padding: 0.5rem 1rem; margin-right: 0.5rem; margin-bottom: 0.5rem; border: 2px solid #333; background: #fff; cursor: pointer; font-size: 0.9rem; border-radius: 2px; }
+    .wf-stat { border: 2px dashed #999; padding: 1rem; text-align: center; background: #fff; display: inline-block; min-width: 120px; margin-right: 1rem; margin-bottom: 0.5rem; }
+    .wf-stat .value { font-size: 1.5rem; font-weight: bold; }
+    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; }
+    .clickable-row { cursor: pointer; }
+    .clickable-row:hover { background: #f0f0f0 !important; }
+    .filter-chips { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 0.5rem; }
+    .filter-chips button { padding: 0.35rem 0.7rem; border: 1px solid #999; background: #fff; cursor: pointer; font-size: 0.8rem; border-radius: 4px; }
+    .filter-chips button.active { background: #333; color: #fff; border-color: #333; }
+    .ai-assistant-fab { position: fixed; bottom: 1.5rem; right: 1.5rem; width: 52px; height: 52px; border-radius: 50%; border: 2px solid #333; background: #333; color: #fff; cursor: pointer; font-size: 0.9rem; z-index: 100; box-shadow: 0 2px 8px rgba(0,0,0,0.2); display: flex; align-items: center; justify-content: center; }
+    .ai-assistant-fab:hover { background: #555; }
+    .ai-assistant-panel { position: fixed; top: 0; right: -360px; width: 340px; height: 100vh; background: #fff; border-left: 2px solid #999; box-shadow: -4px 0 12px rgba(0,0,0,0.1); z-index: 101; transition: right 0.2s ease; overflow: hidden; display: flex; flex-direction: column; }
+    .ai-assistant-panel.open { right: 0; }
+    .ai-assistant-panel .ai-head { padding: 1rem; border-bottom: 1px solid #ddd; font-weight: bold; display: flex; justify-content: space-between; align-items: center; }
+    .ai-assistant-panel .ai-close { background: none; border: none; cursor: pointer; font-size: 1.2rem; }
+    .ai-assistant-panel .ai-desc { font-size: 0.8rem; color: #666; padding: 0 1rem 0.5rem; }
+    .ai-assistant-panel .ai-prompts { padding: 0.5rem 1rem; display: flex; flex-wrap: wrap; gap: 0.5rem; }
+    .ai-assistant-panel .ai-prompts button { padding: 0.35rem 0.6rem; border: 1px solid #999; background: #f9f9f9; cursor: pointer; font-size: 0.75rem; border-radius: 4px; }
+    .ai-assistant-panel .ai-messages { flex: 1; overflow-y: auto; padding: 1rem; font-size: 0.85rem; }
+    .ai-assistant-panel .ai-msg { margin-bottom: 0.75rem; padding: 0.5rem 0.75rem; border-radius: 6px; }
+    .ai-assistant-panel .ai-msg.user { background: #e8e8e8; margin-left: 1rem; }
+    .ai-assistant-panel .ai-msg.bot { background: #f0f7ff; border: 1px solid #b8d4ff; }
+    .ai-assistant-panel .ai-input-row { padding: 0.75rem; border-top: 1px solid #ddd; display: flex; gap: 0.5rem; }
+    .ai-assistant-panel .ai-input-row input { flex: 1; padding: 0.5rem; border: 1px solid #999; border-radius: 4px; }
+    .ai-assistant-panel .ai-input-row button { padding: 0.5rem 1rem; border: 2px solid #333; background: #333; color: #fff; cursor: pointer; border-radius: 4px; }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <div class="logo">Service Intelligence</div>
+    <div class="user"><span>Raj Kumar</span> (Workshop Manager) <a href="#">Logout</a></div>
+  </header>
+  <div class="app">
+    <aside class="sidebar">
+      <h2>Service Management</h2>
+      <nav>
+        <a href="#" class="nav-link active" data-screen="dashboard">Dashboard</a>
+        <a href="#" class="nav-link" data-screen="job-cards">Job Cards</a>
+        <a href="#" class="nav-link" data-screen="tracking">Tracking</a>
+      </nav>
+      <div class="divider"></div>
+      <h2>Other</h2>
+      <nav>
+        <a href="#" class="nav-link" data-screen="reports">Reports</a>
+        <a href="#" class="nav-link" data-screen="settings">Settings</a>
+      </nav>
+      <div class="divider"></div>
+      <p style="font-size: 0.7rem; color: #666; margin: 1rem; padding: 0;">AI Assistant (bottom-right) available on every screen.</p>
+    </aside>
+    <main class="main">
+      <!-- Dashboard / Tracking overview -->
+      <section id="dashboard" class="screen active">
+        <div class="wf-block">
+          <div class="wf-label">Tracking overview</div>
+          <div class="grid-3">
+            <div class="wf-stat"><div class="value">8</div>In progress</div>
+            <div class="wf-stat"><div class="value">3</div>Pending approval</div>
+            <div class="wf-stat"><div class="value">2</div>At risk (ETA)</div>
+            <div class="wf-stat"><div class="value">6</div>Completed today</div>
+          </div>
+        </div>
+        <div class="wf-block">
+          <div class="wf-label">Jobs — click row to view job card</div>
+          <table class="wf-table">
+            <thead><tr><th>Job ID</th><th>Customer</th><th>Vehicle</th><th>Status</th><th>ETA</th><th>Risk</th></tr></thead>
+            <tbody>
+              <tr class="clickable-row" data-goto="view-job"><td>JC-2025-0042</td><td>Maria Santos</td><td>2023 Honda CR-V</td><td>Pending approval</td><td>—</td><td>—</td></tr>
+              <tr class="clickable-row" data-goto="view-job"><td>JC-2025-0041</td><td>James Okonkwo</td><td>2022 Toyota Camry LE</td><td>In progress</td><td>Today 5pm</td><td>—</td></tr>
+              <tr class="clickable-row" data-goto="view-job"><td>JC-2025-0040</td><td>Priya Mehta</td><td>2024 Hyundai Tucson</td><td>In progress</td><td>Tomorrow 10am</td><td>Possible delay</td></tr>
+              <tr class="clickable-row" data-goto="view-job"><td>JC-2025-0039</td><td>David Park</td><td>2021 Ford Escape</td><td>Completed</td><td>19 Feb 2025</td><td>—</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="wf-block">
+          <p class="wf-label">Use the <strong>AI Assistant</strong> (bottom-right) to ask e.g. &ldquo;Which jobs are at risk?&rdquo; or &ldquo;Why is JC-2025-0040 delayed?&rdquo;</p>
+        </div>
+      </section>
+
+      <!-- Tracking (same data, filter focus) -->
+      <section id="tracking" class="screen">
+        <div class="wf-block">
+          <div class="wf-label">Tracking by status</div>
+          <div class="filter-chips">
+            <button type="button" class="filter-chip active">All</button>
+            <button type="button" class="filter-chip">Pending approval</button>
+            <button type="button" class="filter-chip">In progress</button>
+            <button type="button" class="filter-chip">At risk</button>
+            <button type="button" class="filter-chip">Completed</button>
+          </div>
+        </div>
+        <div class="wf-block">
+          <table class="wf-table">
+            <thead><tr><th>Job ID</th><th>Customer</th><th>Vehicle</th><th>Status</th><th>ETA</th></tr></thead>
+            <tbody>
+              <tr class="clickable-row" data-goto="view-job"><td>JC-2025-0042</td><td>Maria Santos</td><td>2023 Honda CR-V</td><td>Pending approval</td><td>—</td></tr>
+              <tr class="clickable-row" data-goto="view-job"><td>JC-2025-0041</td><td>James Okonkwo</td><td>2022 Toyota Camry LE</td><td>In progress</td><td>Today 5pm</td></tr>
+              <tr class="clickable-row" data-goto="view-job"><td>JC-2025-0040</td><td>Priya Mehta</td><td>2024 Hyundai Tucson</td><td>In progress</td><td>Tomorrow 10am</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Job Cards list (view only) -->
+      <section id="job-cards" class="screen">
+        <div class="wf-block">
+          <div class="wf-label">Filter by status</div>
+          <div class="filter-chips">
+            <button type="button" class="filter-chip active">All</button>
+            <button type="button" class="filter-chip">Pending approval</button>
+            <button type="button" class="filter-chip">In progress</button>
+            <button type="button" class="filter-chip">Completed</button>
+          </div>
+        </div>
+        <div class="wf-block">
+          <div class="wf-label">Job Cards — click row to view (read-only)</div>
+          <table class="wf-table">
+            <thead><tr><th>Job ID</th><th>Customer</th><th>Vehicle</th><th>Status</th><th>Created</th><th>Actions</th></tr></thead>
+            <tbody>
+              <tr class="clickable-row" data-goto="view-job"><td>JC-2025-0042</td><td>Maria Santos</td><td>2023 Honda CR-V</td><td>Pending approval</td><td>19 Feb 2025</td><td><button type="button" class="wf-btn small" data-goto="view-job" style="padding:0.25rem 0.5rem;font-size:0.8rem">View</button></td></tr>
+              <tr class="clickable-row" data-goto="view-job"><td>JC-2025-0041</td><td>James Okonkwo</td><td>2022 Toyota Camry LE</td><td>In progress</td><td>18 Feb 2025</td><td><button type="button" class="wf-btn small" data-goto="view-job" style="padding:0.25rem 0.5rem;font-size:0.8rem">View</button></td></tr>
+              <tr class="clickable-row" data-goto="view-job"><td>JC-2025-0040</td><td>Priya Mehta</td><td>2024 Hyundai Tucson</td><td>Draft</td><td>19 Feb 2025</td><td><button type="button" class="wf-btn small" data-goto="view-job" style="padding:0.25rem 0.5rem;font-size:0.8rem">View</button></td></tr>
+              <tr class="clickable-row" data-goto="view-job"><td>JC-2025-0039</td><td>David Park</td><td>2021 Ford Escape</td><td>Completed</td><td>17 Feb 2025</td><td><button type="button" class="wf-btn small" data-goto="view-job" style="padding:0.25rem 0.5rem;font-size:0.8rem">View</button></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- View Job (read-only) -->
+      <section id="view-job" class="screen">
+        <div class="flow-back">
+          <button class="wf-btn" data-goto="job-cards">← Job Cards</button>
+          <button class="wf-btn" data-goto="dashboard">← Dashboard</button>
+        </div>
+        <div class="wf-block">
+          <div class="wf-label">Job card — view only (Workshop Manager)</div>
+          <p><strong>JC-2025-0042</strong> | Maria Santos | 2023 Honda CR-V | Pending approval</p>
+          <p>Complaint: Brake noise when stopping. OBD: P0300, C1234. Estimate sent for customer approval.</p>
+        </div>
+        <div class="wf-block">
+          <button class="wf-btn" data-goto="dashboard">Back to Dashboard</button>
+          <a href="index.html" class="wf-btn">Open Service Advisor view</a>
+        </div>
+      </section>
+
+      <section id="reports" class="screen">
+        <div class="wf-block"><div class="wf-label">Reports</div><p>Placeholder — reports.</p></div>
+      </section>
+      <section id="settings" class="screen">
+        <div class="wf-block"><div class="wf-label">Settings</div><p>Placeholder — settings.</p></div>
+      </section>
+    </main>
+
+    <div id="ai-assistant-panel" class="ai-assistant-panel">
+      <div class="ai-head">AI Assistant <button type="button" class="ai-close" id="ai-panel-close" aria-label="Close">×</button></div>
+      <div class="ai-desc">Ask about workshop status, delays, or job details.</div>
+      <div class="ai-prompts">
+        <button type="button" class="ai-quick-prompt" data-query="Which jobs are at risk?">Jobs at risk?</button>
+        <button type="button" class="ai-quick-prompt" data-query="Why is JC-2025-0040 delayed?">Why JC-2025-0040 delayed?</button>
+        <button type="button" class="ai-quick-prompt" data-query="Summary of pending approvals">Pending approvals</button>
+      </div>
+      <div class="ai-messages" id="ai-messages">
+        <div class="ai-msg bot">Ask about tracking, ETAs, or any job. I can summarize by status or explain delays.</div>
+      </div>
+      <div class="ai-input-row">
+        <input type="text" id="ai-input" placeholder="Ask the AI..." />
+        <button type="button" id="ai-send">Send</button>
+      </div>
+    </div>
+    <button type="button" class="ai-assistant-fab" id="ai-assistant-fab" aria-label="Open AI Assistant">AI</button>
+  </div>
+  <script>
+    var aiSampleReplies = {
+      'default': 'In the full app, the AI would use ETA/Risk and workflow data to answer. This is a wireframe demo.',
+      'Which jobs are at risk?': 'JC-2025-0040 (Priya Mehta, Hyundai Tucson) is flagged as possible delay — parts on order. Others are on track.',
+      'Why is JC-2025-0040 delayed?': 'Parts for the repair were not in stock; order placed. ETA updated to tomorrow 10am. Customer can be notified via the advisor.',
+      'Summary of pending approvals': '3 jobs pending approval: JC-2025-0042 (Maria Santos), and two others. Customers have been sent estimates and can accept in the customer portal.'
+    };
+    function showScreen(screenId) {
+      document.querySelectorAll('.screen').forEach(function(s) { s.classList.remove('active'); });
+      document.querySelectorAll('.nav-link').forEach(function(l) { l.classList.remove('active'); });
+      var target = document.getElementById(screenId);
+      if (target) target.classList.add('active');
+      var navLink = document.querySelector('.nav-link[data-screen="' + screenId + '"]');
+      if (navLink) navLink.classList.add('active');
+    }
+    document.querySelectorAll('.nav-link').forEach(function(link) {
+      link.addEventListener('click', function(e) { e.preventDefault(); showScreen(link.getAttribute('data-screen')); });
+    });
+    document.querySelectorAll('.clickable-row, [data-goto]').forEach(function(el) {
+      var goto = el.getAttribute('data-goto');
+      if (!goto) return;
+      el.addEventListener('click', function(e) {
+        if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+        e.preventDefault();
+        e.stopPropagation();
+        showScreen(goto);
+      });
+    });
+    document.getElementById('ai-assistant-fab').addEventListener('click', function() {
+      document.getElementById('ai-assistant-panel').classList.add('open');
+    });
+    document.getElementById('ai-panel-close').addEventListener('click', function() {
+      document.getElementById('ai-assistant-panel').classList.remove('open');
+    });
+    function addAIMessage(text, who) {
+      var div = document.createElement('div');
+      div.className = 'ai-msg ' + who;
+      div.textContent = text;
+      document.getElementById('ai-messages').appendChild(div);
+      document.getElementById('ai-messages').scrollTop = document.getElementById('ai-messages').scrollHeight;
+    }
+    document.querySelectorAll('.ai-quick-prompt').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        var q = btn.getAttribute('data-query');
+        addAIMessage(q, 'user');
+        addAIMessage(aiSampleReplies[q] || aiSampleReplies['default'], 'bot');
+      });
+    });
+    document.getElementById('ai-send').addEventListener('click', function() {
+      var text = (document.getElementById('ai-input').value || '').trim();
+      if (!text) return;
+      addAIMessage(text, 'user');
+      document.getElementById('ai-input').value = '';
+      addAIMessage(aiSampleReplies[text] || aiSampleReplies['default'], 'bot');
+    });
+    document.getElementById('ai-input').addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') document.getElementById('ai-send').click();
+    });
+    showScreen('dashboard');
+  </script>
+</body>
+</html>
