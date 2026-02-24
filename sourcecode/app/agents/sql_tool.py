@@ -5,6 +5,8 @@ import asyncio
 from typing import Iterable
 
 from app.domain.schemas import (
+    SqlFaultDetails,
+    SqlLaborDetails,
     SqlLookupResult,
     SqlPartDetails,
     SqlUserDetails,
@@ -21,16 +23,43 @@ def _get_repo() -> SqlRepository:
         _repo = SqlRepository.from_env()
     return _repo
 
+def _normalize_fault_codes(codes: list[str] | None) -> list[str]:
+    if not codes:
+        return []
+    return [c.split()[0].strip() for c in codes]
 
 def _build_lookup_result(
+    repo: SqlRepository,
     vehicle: dict | None,
     customer: dict | None,
     parts: Iterable[dict],
+    fault_codes: list[str] | None
 ) -> SqlLookupResult:
+    
+    normalized_faults = _normalize_fault_codes(fault_codes)
     vehicle_model = SqlVehicleDetails(**vehicle) if vehicle else None
     customer_model = SqlUserDetails(**customer) if customer else None
     part_models = [SqlPartDetails(**part) for part in parts] if parts else None
-    return SqlLookupResult(vehicle=vehicle_model, customer=customer_model, parts=part_models)
+    fault_dicts = repo.get_fault_code_details(normalized_faults)
+    fault_models = [SqlFaultDetails(**f) for f in fault_dicts] if fault_dicts else None
+
+    labor_ids = [
+        f["labor_operation_id"]
+        for f in fault_dicts
+        if f.get("labor_operation_id")
+    ]
+    labor_dicts = repo.get_labor_operations(labor_ids)
+    labor_models = [SqlLaborDetails(**l) for l in labor_dicts] if labor_dicts else None
+    print("DEBUG NORMALIZED FAULTS:", normalized_faults)
+    print("DEBUG FAULT DICTS:", fault_dicts)
+    print("DEBUG LABOR DICTS:", labor_dicts)
+    return SqlLookupResult(
+        vehicle=vehicle_model, 
+        customer=customer_model, 
+        parts=part_models, 
+        faults=fault_models, 
+        labor=labor_models 
+    )
 
 
 async def sql_lookup_tool(
@@ -38,6 +67,7 @@ async def sql_lookup_tool(
     customer_id: str | None = None,
     user_id: str | None = None,
     part_codes: list[str] | None = None,
+    fault_codes: list[str] | None = None
 ) -> str:
     repo = _get_repo()
 
@@ -51,7 +81,7 @@ async def sql_lookup_tool(
             else None
         )
         parts = repo.get_parts_details(part_codes or [])
-        return _build_lookup_result(vehicle, customer, parts)
+        return _build_lookup_result(repo, vehicle, customer, parts, fault_codes)
 
     result = await asyncio.to_thread(_run)
     return result.model_dump_json()

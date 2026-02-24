@@ -108,6 +108,9 @@ Thumbs.db
 tmp/
 temp/
 .cache/
+*__pycache__/
 
 .env
 sourcecode/app/domain/__pycache__/schemas.cpython-311.pyc
+sourcecode/app/__pycache__/main.cpython-311.pyc
+sourcecode/app/__pycache__/main.cpython-311.pyc

@@ -1,7 +1,7 @@
 """Pydantic schemas for all request/response models."""
 from __future__ import annotations
 from pydantic import BaseModel
-from typing import Optional, List
+from typing import Literal, Optional, List
 
 
 # ─── Auth ────────────────────────────────────────────────────────────────────
@@ -163,13 +163,19 @@ class MasterAgentRequest(BaseModel):
     job_card_id: Optional[str] = None
     question: Optional[str] = None
     context: Optional[dict] = None
+    job_card: Optional[dict] = None
+
+class JobCard(BaseModel):
+    vehicle_id: str
+    make_model: str | None = None
+    complaint: str
+    obd_codes: list[str]
+    tasks: list[str]
 
 class AgentIntakeResponse(BaseModel):
     agent: str
-    vehicle_id: str
-    customer_complaint: str
-    obd_report_summary: str
-    job_details: str
+    service_type: str
+    job_card: JobCard
 
 class MasterAgentResult(BaseModel):
     intake: Optional[AgentIntakeResponse] = None
@@ -190,6 +196,18 @@ class IntakeResponse(BaseModel):
     complaint_text: str
     blob_url: str
     status: str
+
+class SqlFaultDetails(BaseModel):
+    fault_code: str
+    description: Optional[str] = None
+    labor_operation_id: Optional[str] = None
+    warranty_eligible: Optional[bool] = None
+
+class SqlLaborDetails(BaseModel):
+    labor_id: str    
+    name: str
+    hourly_rate: float
+    estimated_hours: float
 
 class SqlVehicleDetails(BaseModel):
     vehicle_id: str
@@ -217,3 +235,41 @@ class SqlLookupResult(BaseModel):
     vehicle: Optional[SqlVehicleDetails] = None
     customer: Optional[SqlUserDetails] = None
     parts: Optional[List[SqlPartDetails]] = None
+    faults: Optional[List[SqlFaultDetails]] = None
+    labor: Optional[List[SqlLaborDetails]] = None
+
+class EstimateLineItem(BaseModel):
+    type: Literal["part", "labor"]
+
+    reference_id: str
+    name: str
+
+    # part-specific
+    category: Optional[str] = None
+    quantity: Optional[int] = None
+    unit_price: Optional[float] = None
+
+    # labor-specific
+    hourly_rate: Optional[float] = None
+    estimated_hours: Optional[float] = None
+
+    # explainability fields
+    related_fault: Optional[str] = None
+    resolves_task: Optional[str] = None
+
+    total: float
+
+class EstimateTotals(BaseModel):
+    parts_total: float
+    labor_total: float
+    grand_total: float
+
+class Estimate(BaseModel):
+    vehicle_id: str
+    currency: str
+    line_items: List[EstimateLineItem]
+    totals: Optional[EstimateTotals] = None
+
+class AgentEstimatorResponse(BaseModel):
+    agent: Literal["estimator_agent"]
+    estimate: Estimate

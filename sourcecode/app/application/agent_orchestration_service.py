@@ -1,36 +1,53 @@
 """Application service for multi-agent orchestration."""
 from __future__ import annotations
 
+import json as _json
+
 from app.agents.master_agent import run_master_agent
 from app.domain.schemas import MasterAgentRequest, MasterAgentResponse
 
 
-def _build_intake_prompt(payload: MasterAgentRequest) -> str:
+def _build_prompt(payload: MasterAgentRequest) -> str:
+    """Build a structured prompt that always carries the action field."""
+    # If job_card is provided, build the exact JSON structure the estimator expects.
+    if payload.job_card:
+        prompt_obj: dict = {}
+        if payload.action:
+            prompt_obj["action"] = payload.action
+        prompt_obj["job_card"] = payload.job_card
+        return _json.dumps(prompt_obj)
+
+    # Free-form override: still prepend action so the router sees it.
     if payload.user_input:
+        if payload.action:
+            return f"action: {payload.action}\n{payload.user_input}"
         return payload.user_input
 
-    missing = [
-        name
-        for name, value in (
-            ("vehicle_id", payload.vehicle_id),
-            ("customer_complaint", payload.customer_complaint),
-            ("obd_report_text", payload.obd_report_text),
-        )
-        if not value
-    ]
-    if missing:
-        missing_list = ", ".join(missing)
-        raise ValueError(f"Missing required fields: {missing_list}")
+    parts: list[str] = []
 
-    return (
-        f"Vehicle ID: {payload.vehicle_id}. "
-        f"Complaint: {payload.customer_complaint}. "
-        f"OBD report: {payload.obd_report_text}. "
-        "Please generate job card."
-    )
+    if payload.action:
+        parts.append(f"action: {payload.action}")
+
+    if payload.vehicle_id:
+        parts.append(f"Vehicle ID: {payload.vehicle_id}")
+    if payload.customer_complaint:
+        parts.append(f"Complaint: {payload.customer_complaint}")
+    if payload.obd_report_text:
+        parts.append(f"OBD report: {payload.obd_report_text}")
+    if payload.job_card_id:
+        parts.append(f"Job Card ID: {payload.job_card_id}")
+    if payload.question:
+        parts.append(f"Question: {payload.question}")
+    if payload.context:
+        parts.append(f"Context: {_json.dumps(payload.context)}")
+
+    if not parts:
+        raise ValueError("Request must include at least an action or user_input.")
+
+    return ". ".join(parts) + "."
 
 
 async def execute_master_agent(payload: MasterAgentRequest) -> MasterAgentResponse:
-    user_input = _build_intake_prompt(payload)
+    user_input = _build_prompt(payload)
     data = await run_master_agent(user_input)
     return data
