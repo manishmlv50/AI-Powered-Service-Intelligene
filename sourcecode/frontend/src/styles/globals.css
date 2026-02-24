@@ -1,0 +1,509 @@
+/* Global component styles */
+@import './tokens.css';
+
+/* ─── Buttons ─────────────────────────────────────────────────────────────── */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 9px 18px;
+    border-radius: var(--radius-sm);
+    font-size: 0.875rem;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+    border: none;
+    transition: var(--transition);
+    white-space: nowrap;
+}
+
+.btn-primary {
+    background: var(--primary);
+    color: #fff;
+    box-shadow: 0 0 0 0 var(--primary-glow);
+}
+
+.btn-primary:hover {
+    background: var(--primary-dark);
+    box-shadow: var(--shadow-primary);
+    transform: translateY(-1px);
+}
+
+.btn-primary:active {
+    transform: translateY(0);
+}
+
+.btn-outline {
+    background: transparent;
+    color: var(--text);
+    border: 1px solid var(--border);
+}
+
+.btn-outline:hover {
+    border-color: var(--primary);
+    color: var(--primary);
+    background: rgba(108, 99, 255, 0.08);
+}
+
+.btn-ghost {
+    background: transparent;
+    color: var(--text-muted);
+}
+
+.btn-ghost:hover {
+    color: var(--text);
+    background: var(--surface-3);
+}
+
+.btn-danger {
+    background: var(--danger);
+    color: #fff;
+}
+
+.btn-success {
+    background: var(--success);
+    color: #000;
+}
+
+.btn-sm {
+    padding: 6px 12px;
+    font-size: 0.8rem;
+}
+
+.btn-lg {
+    padding: 12px 24px;
+    font-size: 0.95rem;
+}
+
+.btn:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+    transform: none !important;
+}
+
+/* ─── Cards ───────────────────────────────────────────────────────────────── */
+.card {
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+    transition: var(--transition);
+}
+
+.card:hover {
+    border-color: var(--border-hover);
+}
+
+.card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+}
+
+.card-title {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+/* ─── Form Elements ─────────────────────────────────────────────────────────── */
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.form-label {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.form-control {
+    background: var(--surface-3);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    color: var(--text);
+    padding: 10px 14px;
+    font-size: 0.9rem;
+    transition: var(--transition);
+    outline: none;
+    width: 100%;
+}
+
+.form-control:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px var(--primary-glow);
+}
+
+.form-control::placeholder {
+    color: var(--text-dim);
+}
+
+textarea.form-control {
+    resize: vertical;
+    min-height: 100px;
+}
+
+select.form-control {
+    cursor: pointer;
+}
+
+/* ─── Status Badges ─────────────────────────────────────────────────────────── */
+.badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 3px 10px;
+    border-radius: 99px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    transition: all var(--transition);
+}
+
+.badge::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: currentColor;
+}
+
+.badge-draft {
+    background: rgba(139, 145, 168, 0.15);
+    color: var(--text-muted);
+}
+
+.badge-pending {
+    background: rgba(245, 166, 35, 0.15);
+    color: var(--warning);
+}
+
+.badge-progress {
+    background: rgba(56, 178, 255, 0.15);
+    color: var(--info);
+}
+
+.badge-completed {
+    background: rgba(40, 217, 139, 0.15);
+    color: var(--success);
+}
+
+.badge-closed {
+    background: rgba(255, 90, 90, 0.1);
+    color: var(--danger);
+}
+
+.badge-approved {
+    background: rgba(40, 217, 139, 0.15);
+    color: var(--success);
+}
+
+.badge-rejected {
+    background: rgba(255, 90, 90, 0.15);
+    color: var(--danger);
+}
+
+.badge-risk-high {
+    background: rgba(255, 90, 90, 0.15);
+    color: var(--danger);
+    animation: shake 0.5s 2;
+}
+
+.badge-risk-medium {
+    background: rgba(245, 166, 35, 0.15);
+    color: var(--warning);
+}
+
+.badge-risk-low {
+    background: rgba(40, 217, 139, 0.15);
+    color: var(--success);
+}
+
+/* ─── Table ──────────────────────────────────────────────────────────────── */
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.data-table th {
+    text-align: left;
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--border);
+}
+
+.data-table td {
+    padding: 13px 14px;
+    font-size: 0.875rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+    color: var(--text);
+}
+
+.data-table tr:hover td {
+    background: var(--surface-3);
+    cursor: pointer;
+}
+
+.data-table tr:last-child td {
+    border-bottom: none;
+}
+
+/* ─── Modal / Drawer ─────────────────────────────────────────────────────── */
+.overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(4px);
+    z-index: 100;
+    animation: fadeIn 0.2s ease;
+}
+
+.modal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 28px;
+    width: 90%;
+    max-width: 680px;
+    max-height: 90vh;
+    overflow-y: auto;
+    z-index: 101;
+    animation: slideUp 0.3s ease;
+}
+
+.drawer {
+    position: fixed;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    width: 480px;
+    background: var(--surface-2);
+    border-left: 1px solid var(--border);
+    padding: 28px;
+    z-index: 101;
+    overflow-y: auto;
+    animation: slideInRight 0.3s ease;
+}
+
+/* ─── Loading Shimmer ────────────────────────────────────────────────────── */
+.skeleton {
+    border-radius: var(--radius-sm);
+    background: linear-gradient(90deg, var(--surface-3) 25%, var(--surface-4) 50%, var(--surface-3) 75%);
+    background-size: 600px 100%;
+    animation: shimmer 1.4s infinite linear;
+}
+
+/* ─── Chat Bubbles ───────────────────────────────────────────────────────── */
+.bubble-system {
+    background: var(--surface-3);
+    border: 1px solid var(--border);
+    border-radius: 0 var(--radius) var(--radius) var(--radius);
+    padding: 12px 16px;
+    max-width: 80%;
+    animation: slideInLeft 0.3s ease;
+}
+
+.bubble-user {
+    background: var(--primary);
+    color: #fff;
+    border-radius: var(--radius) 0 var(--radius) var(--radius);
+    padding: 12px 16px;
+    max-width: 80%;
+    margin-left: auto;
+    animation: slideInRight 0.3s ease;
+}
+
+/* ─── Typing indicator ───────────────────────────────────────────────────── */
+.typing-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--text-muted);
+    display: inline-block;
+    animation: bounce 1.2s infinite ease-in-out;
+}
+
+.typing-dot:nth-child(1) {
+    animation-delay: -0.32s
+}
+
+.typing-dot:nth-child(2) {
+    animation-delay: -0.16s
+}
+
+/* ─── OBD Fault Code Pill ─────────────────────────────────────────────────── */
+.fault-code {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 10px;
+    border-radius: 99px;
+    font-size: 0.75rem;
+    font-family: var(--font-mono);
+    background: rgba(245, 166, 35, 0.12);
+    color: var(--warning);
+    border: 1px solid rgba(245, 166, 35, 0.25);
+    margin: 2px;
+}
+
+.fault-code.high {
+    background: rgba(255, 90, 90, 0.12);
+    color: var(--danger);
+    border-color: rgba(255, 90, 90, 0.25);
+}
+
+/* ─── Tag Chip ───────────────────────────────────────────────────────────── */
+.tag {
+    display: inline-flex;
+    padding: 2px 10px;
+    border-radius: 99px;
+    font-size: 0.75rem;
+    background: var(--surface-3);
+    color: var(--text-muted);
+    border: 1px solid var(--border);
+    margin: 2px;
+}
+
+/* ─── Divider ─────────────────────────────────────────────────────────────── */
+.divider {
+    height: 1px;
+    background: var(--border);
+    margin: 16px 0;
+}
+
+/* ─── Page layout ─────────────────────────────────────────────────────────── */
+.page {
+    padding: 28px;
+    animation: fadeIn 0.3s ease;
+}
+
+.page-header {
+    margin-bottom: 28px;
+}
+
+.page-title {
+    font-size: 1.6rem;
+    font-weight: 700;
+}
+
+.page-subtitle {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    margin-top: 4px;
+}
+
+/* ─── Grid helpers ─────────────────────────────────────────────────────────── */
+.grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+
+.grid-3 {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+}
+
+.grid-4 {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+}
+
+@media (max-width: 900px) {
+
+    .grid-4,
+    .grid-3 {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .grid-2 {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* ─── Filter chips row ─────────────────────────────────────────────────────── */
+.filter-bar {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
+}
+
+.filter-chip {
+    padding: 5px 14px;
+    border-radius: 99px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    border: 1px solid var(--border);
+    background: var(--surface-3);
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.filter-chip.active,
+.filter-chip:hover {
+    border-color: var(--primary);
+    background: rgba(108, 99, 255, 0.12);
+    color: var(--primary);
+}
+
+/* ─── Toast ─────────────────────────────────────────────────────────────── */
+.toast {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    background: var(--surface-3);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px 20px;
+    font-size: 0.875rem;
+    z-index: 200;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    box-shadow: var(--shadow-lg);
+    animation: slideUp 0.3s ease;
+}
+
+.toast.success {
+    border-color: var(--success);
+    color: var(--success);
+}
+
+.toast.error {
+    border-color: var(--danger);
+    color: var(--danger);
+}
+
+/* ─── Empty State ────────────────────────────────────────────────────────── */
+.empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 20px;
+    gap: 12px;
+    color: var(--text-muted);
+    text-align: center;
+}
+
+.empty-state svg {
+    opacity: 0.3;
+}
