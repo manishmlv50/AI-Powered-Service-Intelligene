@@ -27,7 +27,6 @@ intake_agent = _client.as_agent(
     tools=[sql_lookup_tool],
 )
 
-
 async def _collect_json(agent, user_input: str) -> str:
     full = ""
     async for event in agent.run(user_input, stream=True):

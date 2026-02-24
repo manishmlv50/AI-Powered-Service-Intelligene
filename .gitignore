@@ -110,3 +110,4 @@ temp/
 .cache/
 
 .env
+sourcecode/app/domain/__pycache__/schemas.cpython-311.pyc

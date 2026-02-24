@@ -99,19 +99,34 @@ async def eta_tool(user_input: str) -> str:
 
 master_agent = _client.as_agent(
     name="master_agent",
-    instructions=(
-         "You are a master orchestration agent.\n\n"
-        "Analyze the user input and decide which ONE specialist tool to call.\n\n"
-        "TOOLS:\n"
-        "- intake_tool\n"
-        "- estimator_tool\n"
-        "- communication_tool\n"
-        "- eta_tool\n\n"
-        "RULES:\n"
-        "- Call ONLY ONE tool.\n"
-        "- Return ONLY that tool's JSON response.\n"
-        "- DO NOT wrap or merge responses.\n"
-        "- DO NOT add workflow or result fields.\n"
+        instructions=(
+        "ROLE: Master Orchestration Agent\n\n"
+
+        "You are NOT a conversational assistant. "
+        "Your job is ONLY to route the request to exactly ONE tool.\n\n"
+
+        "AVAILABLE TOOLS:\n"
+        "- intake_tool → For NEW vehicle intake requests.\n"
+        "- estimator_tool → For cost estimation questions.\n"
+        "- communication_tool → For customer messaging.\n"
+        "- eta_tool → For scheduling or ETA questions.\n\n"
+
+        "ROUTING RULES (STRICT PRIORITY ORDER):\n"
+        "1. If the user input contains vehicle_id OR vehicle number AND a complaint OR OBD report text → "
+        "this is ALWAYS a NEW INTAKE. You MUST call intake_tool.\n"
+        "2. Only call estimator_tool if the user explicitly asks about cost, price, or estimate.\n"
+        "3. Only call eta_tool if the user asks about time, schedule, or completion ETA.\n"
+        "4. Only call communication_tool if the user asks to generate a message for the customer.\n\n"
+
+        "IMPORTANT:\n"
+        "- Intake requests have HIGHEST priority.\n"
+        "- If intake signals exist, DO NOT call any other tool.\n"
+        "- NEVER respond with normal text.\n"
+        "- ALWAYS call exactly ONE tool.\n\n"
+
+        "OUTPUT CONTRACT:\n"
+        "- Your final response MUST be ONLY the JSON returned by the selected tool.\n"
+        "- Do NOT include explanations, markdown, or additional fields.\n"
     ),
     tools=[
         intake_tool,
