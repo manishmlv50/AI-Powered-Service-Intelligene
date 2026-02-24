@@ -117,7 +117,8 @@ function teardownAudio() {
 
 function connectWebSocket() {
   const protocol = window.location.protocol === "https:" ? "wss" : "ws";
-  const wsUrl = `${protocol}://${window.location.host}/api/speech/ws/transcribe`;
+  const host = 'localhost:8000' || window.location.host
+  const wsUrl = `${protocol}://${host}/api/speech/ws/transcribe`;
 
   ws = new WebSocket(wsUrl);
   ws.binaryType = "arraybuffer";
