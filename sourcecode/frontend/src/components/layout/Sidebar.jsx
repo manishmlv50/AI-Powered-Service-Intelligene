@@ -19,6 +19,7 @@ const MANAGER_NAV = [
 ]
 const CUSTOMER_NAV = [
     { to: '/customer/chat', icon: MessageSquare, label: 'AI Assistant' },
+    { to: '/customer/jobs', icon: ClipboardList, label: 'Job Cards' },
     { to: '/customer/history', icon: ClipboardList, label: 'Service History' },
     { to: '/customer/vehicles', icon: Car, label: 'My Vehicles' },
 ]

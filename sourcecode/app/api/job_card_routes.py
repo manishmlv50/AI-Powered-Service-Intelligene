@@ -34,8 +34,19 @@ def _map(jc: dict) -> dict:
     }
 
 @router.get("", response_model=list[dict])
-def list_job_cards(status: Optional[str] = None, advisor_id: Optional[str] = None):
-    return [_map(j) for j in db.list_job_cards(status=status, advisor_id=advisor_id)]
+def list_job_cards(
+    status: Optional[str] = None,
+    advisor_id: Optional[str] = None,
+    customer_id: Optional[str] = None,
+):
+    return [
+        _map(j)
+        for j in db.list_job_cards(
+            status=status,
+            advisor_id=advisor_id,
+            customer_id=customer_id,
+        )
+    ]
 
 @router.get("/{job_id}", response_model=dict)
 def get_job_card(job_id: str):

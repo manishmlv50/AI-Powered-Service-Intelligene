@@ -259,13 +259,19 @@ _JC_SELECT = "SELECT * FROM Job_Cards"
 
 # ─── Job Cards ────────────────────────────────────────────────────────────────
 
-def list_job_cards(status: Optional[str] = None, advisor_id: Optional[str] = None) -> list[dict]:
+def list_job_cards(
+    status: Optional[str] = None,
+    advisor_id: Optional[str] = None,
+    customer_id: Optional[str] = None,
+) -> list[dict]:
     if _db_available():
         where, params = [], []
         if status:
             where.append("status = ?"); params.append(status)
         if advisor_id:
             where.append("advisor_id = ?"); params.append(advisor_id)
+        if customer_id:
+            where.append("customer_id = ?"); params.append(customer_id)
         clause = ("WHERE " + " AND ".join(where)) if where else ""
         rows = _sql_rows(f"{_JC_SELECT} {clause} ORDER BY created_at DESC", tuple(params))
         return [_map_job(r) for r in rows]
@@ -276,6 +282,13 @@ def list_job_cards(status: Optional[str] = None, advisor_id: Optional[str] = Non
             jcs = [j for j in jcs if j.get("status") == status]
         if advisor_id:
             jcs = [j for j in jcs if j.get("advisorId") == advisor_id]
+        if customer_id:
+            normalized_customer_id = str(customer_id).strip().lower()
+            jcs = [
+                j
+                for j in jcs
+                if str(j.get("customerId", "")).strip().lower() == normalized_customer_id
+            ]
         return sorted(jcs, key=lambda j: j.get("createdAt", ""), reverse=True)
     return []
 

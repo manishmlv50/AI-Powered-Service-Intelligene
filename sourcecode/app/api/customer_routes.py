@@ -1,6 +1,7 @@
 """Customer, vehicle, and service history routes — v2 schema."""
 from __future__ import annotations
 from fastapi import APIRouter, HTTPException
+from typing import Optional
 from app.domain.schemas import VehicleCreate
 from app.application import db_service as db
 
@@ -26,6 +27,8 @@ def _map_jc(jc: dict) -> dict:
         "id":            jc.get("id"),
         "created_at":    jc.get("createdAt", ""),
         "status":        jc.get("status"),
+        "customer_id":   jc.get("customerId") or jc.get("customer_id"),
+        "customer_name": jc.get("customerName") or jc.get("customer_name"),
         "vehicle_make":  jc.get("vehicleMake")  or jc.get("vehicle_make"),
         "vehicle_model": jc.get("vehicleModel") or jc.get("vehicle_model"),
         "vehicle_year":  jc.get("vehicleYear")  or jc.get("vehicle_year"),
@@ -105,3 +108,9 @@ def update_vehicle(customer_id: str, vehicle_id: str, payload: dict):
 @router.get("/{customer_id}/history", response_model=list[dict])
 def get_history(customer_id: str):
     return [_map_jc(j) for j in db.get_customer_history(customer_id)]
+
+
+@router.get("/{customer_id}/jobs", response_model=list[dict])
+def get_customer_jobs(customer_id: str, status: Optional[str] = None):
+    rows = db.list_job_cards(status=status, customer_id=customer_id)
+    return [_map_jc(j) for j in rows]
