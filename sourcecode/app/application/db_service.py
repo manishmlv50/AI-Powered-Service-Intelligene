@@ -81,11 +81,11 @@ def _build_odbc_str(driver: str) -> Optional[str]:
     if not parts:
         return None
     server   = parts.get("Server", "").replace("tcp:", "")
-    database = parts.get("Initial Catalog", "")
-    uid      = parts.get("User ID", "")
-    pwd      = parts.get("Password", "")
-    encrypt  = "yes" if parts.get("Encrypt", "True").lower() == "true" else "no"
-    trust    = "yes" if parts.get("TrustServerCertificate", "False").lower() == "true" else "no"
+    database = parts.get("Database") or parts.get("Initial Catalog", "")
+    uid      = parts.get("Uid") or parts.get("User ID", "")
+    pwd      = parts.get("Pwd") or parts.get("Password", "")
+    encrypt  = "yes" if parts.get("Encrypt", "True").lower() in ("true", "yes") else "no"
+    trust    = "yes" if parts.get("TrustServerCertificate", "False").lower() in ("true", "yes") else "no"
     return (
         f"DRIVER={{{driver}}};SERVER={server};DATABASE={database};"
         f"UID={uid};PWD={pwd};"

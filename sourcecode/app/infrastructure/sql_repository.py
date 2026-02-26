@@ -37,7 +37,7 @@ class SqlRepository:
         query = """
         SELECT TOP 1
             id AS vehicle_id,
-            customerId AS customer_id,
+            customer_id,
             make,
             model,
             year,
@@ -54,7 +54,7 @@ class SqlRepository:
             name,
             phone,
             email,
-            preferredContact AS preferred_contact
+            preferred_contact
         FROM Customers
         WHERE id = :customer_id
         """
@@ -67,12 +67,12 @@ class SqlRepository:
             """
             SELECT
                 id AS part_id,
-                code AS part_code,
-                description,
-                unitPrice AS unit_price,
+                id AS part_code,
+                name AS description,
+                unit_price,
                 category
             FROM Parts
-            WHERE code IN :part_codes OR id IN :part_codes
+            WHERE id IN :part_codes
             """
         ).bindparams(bindparam("part_codes", expanding=True))
         with self.engine.connect() as conn:
@@ -86,12 +86,12 @@ class SqlRepository:
         query = text(
             """
             SELECT
-                faultCode AS fault_code,
+                fault_code,
                 description,
-                laborOperationId AS labor_operation_id,
-                warrantyEligible AS warranty_eligible
-            FROM FaultCodes
-            WHERE faultCode IN :fault_codes
+                labor_operation_id,
+                warranty_eligible
+            FROM Fault_Code_Mappings
+            WHERE fault_code IN :fault_codes
             """
         ).bindparams(bindparam("fault_codes", expanding=True))
 
@@ -103,7 +103,7 @@ class SqlRepository:
         query = """
         SELECT TOP 1
             id AS vehicle_id,
-            customerId AS customer_id,
+            customer_id,
             make,
             model,
             year,
@@ -122,9 +122,9 @@ class SqlRepository:
             SELECT
                 id AS labor_id,
                 name,
-                hourlyRate AS hourly_rate,
-                estimatedHours AS estimated_hours
-            FROM LaborOperations
+                hourly_rate,
+                estimated_hours
+            FROM Labor_Operations
             WHERE id IN :labor_ids
             """
         ).bindparams(bindparam("labor_ids", expanding=True))
