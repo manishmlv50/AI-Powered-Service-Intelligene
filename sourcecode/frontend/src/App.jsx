@@ -78,16 +78,12 @@ function AppRoutes() {
             <Route path="/advisor/jobs/:id" element={<RequireAuth role="advisor"><PortalLayout role="advisor"><JobCardDetail /></PortalLayout></RequireAuth>} />
             <Route path="/advisor/estimates" element={<RequireAuth role="advisor"><PortalLayout role="advisor"><EstimatesPage /></PortalLayout></RequireAuth>} />
             <Route path="/advisor/tracking" element={<RequireAuth role="advisor"><PortalLayout role="advisor"><ManagerDashboard /></PortalLayout></RequireAuth>} />
-            <Route path="/advisor/reports" element={<RequireAuth role="advisor"><PortalLayout role="advisor"><ReportsPage /></PortalLayout></RequireAuth>} />
-            <Route path="/advisor/settings" element={<RequireAuth role="advisor"><PortalLayout role="advisor"><ReportsPage title="Settings" /></PortalLayout></RequireAuth>} />
-
+           
             {/* Manager */}
             <Route path="/manager" element={<RequireAuth role="manager"><PortalLayout role="manager"><ManagerDashboard /></PortalLayout></RequireAuth>} />
             <Route path="/manager/jobs" element={<RequireAuth role="manager"><PortalLayout role="manager"><ManagerJobCards /></PortalLayout></RequireAuth>} />
             <Route path="/manager/tracking" element={<RequireAuth role="manager"><PortalLayout role="manager"><ManagerDashboard /></PortalLayout></RequireAuth>} />
-            <Route path="/manager/reports" element={<RequireAuth role="manager"><PortalLayout role="manager"><ReportsPage /></PortalLayout></RequireAuth>} />
-            <Route path="/manager/settings" element={<RequireAuth role="manager"><PortalLayout role="manager"><ReportsPage title="Settings" /></PortalLayout></RequireAuth>} />
-
+           
             {/* Customer (no sidebar-style — inline layout in component) */}
             <Route path="/customer/chat" element={<RequireAuth role="customer"><PortalLayout role="customer"><CustomerChat /></PortalLayout></RequireAuth>} />
             <Route path="/customer/history" element={<RequireAuth role="customer"><PortalLayout role="customer"><ServiceHistory /></PortalLayout></RequireAuth>} />

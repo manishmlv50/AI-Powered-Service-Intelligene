@@ -1,14 +1,14 @@
 """estimator agent and tool wrapper."""
 from __future__ import annotations
 
-from app.agents.client import get_responses_client
+from app.agents.client import get_reasoning_client
 from app.agents.sql_tool import sql_lookup_tool
 from app.domain.schemas import AgentEstimatorResponse
 
 
-_client = get_responses_client()
+_reasoningclient = get_reasoning_client()
 
-estimator_agent = _client.as_agent(
+estimator_agent = _reasoningclient.as_agent(
     name="estimator_agent",
     instructions=(
         "ROLE: Estimator Agent\n\n"

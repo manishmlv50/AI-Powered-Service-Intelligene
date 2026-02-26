@@ -123,7 +123,6 @@ master_agent = _client.as_agent(
     ],
 )
 
-
 async def run_master_agent(user_input: str) -> dict:
     raw = await _collect_json(master_agent, user_input)
     try:

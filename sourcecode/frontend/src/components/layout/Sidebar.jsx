@@ -10,16 +10,12 @@ const ADVISOR_NAV = [
     { to: '/advisor/intake', icon: PlusCircle, label: 'New Intake' },
     { to: '/advisor/jobs', icon: ClipboardList, label: 'Job Cards' },
     { to: '/advisor/estimates', icon: FileText, label: 'Estimates' },
-    { to: '/advisor/tracking', icon: BarChart2, label: 'Tracking' },
-    { to: '/advisor/reports', icon: BarChart2, label: 'Reports' },
-    { to: '/advisor/settings', icon: Settings, label: 'Settings' },
+    { to: '/advisor/tracking', icon: BarChart2, label: 'Tracking' }
 ]
 const MANAGER_NAV = [
     { to: '/manager', icon: LayoutDashboard, label: 'Dashboard' },
     { to: '/manager/jobs', icon: ClipboardList, label: 'Job Cards' },
-    { to: '/manager/tracking', icon: BarChart2, label: 'Tracking' },
-    { to: '/manager/reports', icon: BarChart2, label: 'Reports' },
-    { to: '/manager/settings', icon: Settings, label: 'Settings' },
+    { to: '/manager/tracking', icon: BarChart2, label: 'Tracking' }
 ]
 const CUSTOMER_NAV = [
     { to: '/customer/chat', icon: MessageSquare, label: 'AI Assistant' },
