@@ -171,6 +171,16 @@ def _split_csv(v) -> list:
 
 def _map_job(row: dict) -> dict:
     """Map v2 Job_Cards row → internal dict (camelCase for FE compatibility)."""
+    tasks_raw = row.get("tasks")
+    payload_raw = row.get("intake_payload_json")
+    tasks = [t.strip() for t in str(tasks_raw or "").splitlines() if t and t.strip()]
+    intake_payload = None
+    if payload_raw:
+        try:
+            intake_payload = json.loads(payload_raw) if isinstance(payload_raw, str) else payload_raw
+        except Exception:
+            intake_payload = None
+
     return {
         "id":             row.get("id", ""),
         "createdAt":      str(row.get("created_at", "")),
@@ -188,11 +198,25 @@ def _map_job(row: dict) -> dict:
         "obdFaultCodes":  _split_csv(row.get("obd_fault_codes")),
         "obdDocumentId":  row.get("obd_document_id"),
         "obdReportText":  row.get("obd_report_text"),
+        "obdReportSummary": row.get("obd_report_summary"),
+        "tasks":          tasks,
+        "intakePayloadJson": intake_payload,
         "vehicleId":      row.get("vehicle_id"),
         "advisorId":      row.get("advisor_id"),
     }
 
 def _map_est(row: dict) -> dict:
+    estimation_json_raw = row.get("estimation_json")
+    estimation_json = None
+    if estimation_json_raw:
+        if isinstance(estimation_json_raw, (dict, list)):
+            estimation_json = estimation_json_raw
+        elif isinstance(estimation_json_raw, str):
+            try:
+                estimation_json = json.loads(estimation_json_raw)
+            except Exception:
+                estimation_json = estimation_json_raw
+
     return {
         "id":          row.get("id", ""),
         "job_card_id": row.get("job_card_id", ""),
@@ -202,6 +226,7 @@ def _map_est(row: dict) -> dict:
         "labor_total": float(row.get("labor_total") or 0),
         "tax":         float(row.get("tax") or 0),
         "grand_total": float(row.get("grand_total") or 0),
+        "estimation_json": estimation_json,
         "lineItems":   [],
     }
 
@@ -275,20 +300,51 @@ def create_job_card(data: dict) -> dict:
     now      = _now()
     risk_str = ",".join(data.get("risk_indicators") or [])
     obd_str  = ",".join(data.get("obd_fault_codes")  or [])
+    tasks_list = data.get("tasks") or []
+    tasks_str = "\n".join([str(task).strip() for task in tasks_list if str(task).strip()])
+
+    intake_payload = data.get("intake_payload_json")
+    if intake_payload is None:
+        make_model = data.get("make_model")
+        if not make_model:
+            make_model = " ".join([
+                str(data.get("vehicle_make") or "").strip(),
+                str(data.get("vehicle_model") or "").strip(),
+                str(data.get("vehicle_year") or "").strip(),
+            ]).strip()
+        intake_payload = {
+            "agent": data.get("agent"),
+            "service_type": data.get("service_type"),
+            "job_card": {
+                "vehicle_id": data.get("vehicle_id"),
+                "make_model": make_model,
+                "complaint": data.get("complaint"),
+                "obd_codes": data.get("obd_fault_codes") or [],
+                "tasks": tasks_list,
+            },
+        }
+    intake_payload_str = None
+    if intake_payload is not None:
+        try:
+            intake_payload_str = json.dumps(intake_payload, ensure_ascii=False)
+        except Exception:
+            intake_payload_str = None
 
     if _db_available():
         ok = _sql_exec(
             """INSERT INTO Job_Cards
                (id, created_at, status, customer_name, vehicle_make, vehicle_model, vehicle_year,
                 vin, mileage, complaint, service_type, risk_indicators, obd_fault_codes,
-                obd_document_id, obd_report_text, obd_report_summary, customer_id, vehicle_id, advisor_id)
-               VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
+                obd_document_id, obd_report_text, obd_report_summary, tasks, intake_payload_json,
+                customer_id, vehicle_id, advisor_id)
+               VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
             (jc_id, now, "draft",
              data.get("customer_name"), data.get("vehicle_make"), data.get("vehicle_model"),
              data.get("vehicle_year"), data.get("vin"), data.get("mileage"),
              data.get("complaint"), data.get("service_type"),
              risk_str, obd_str, data.get("obd_document_id"), data.get("obd_report_text"),
-             data.get("obd_report_summary"), data.get("customer_id"), data.get("vehicle_id"), data.get("advisor_id"))
+             data.get("obd_report_summary"), tasks_str, intake_payload_str,
+             data.get("customer_id"), data.get("vehicle_id"), data.get("advisor_id"))
         )
         if ok:
             fetched = get_job_card(jc_id)
@@ -301,6 +357,8 @@ def create_job_card(data: dict) -> dict:
         "obdFaultCodes":  data.get("obd_fault_codes", []),
         "obdReportText":  data.get("obd_report_text"),
         "obdReportSummary":  data.get("obd_report_summary"),
+        "tasks": [str(task).strip() for task in tasks_list if str(task).strip()],
+        "intake_payload_json": intake_payload,
     }
     if _use_json_fallback():
         _json("job_cards", "job_cards.json").append(jc)
@@ -372,22 +430,68 @@ def get_estimate(estimate_id: str) -> Optional[dict]:
     return None
 
 def create_estimate(job_card_id: str, data: dict) -> dict:
+    estimate_payload = data.get("estimate") if isinstance(data.get("estimate"), dict) else data
+    estimation_json_obj = data.get("estimation_json")
+    if estimation_json_obj is None:
+        estimation_json_obj = estimate_payload
+
+    try:
+        estimation_json_str = json.dumps(estimation_json_obj, ensure_ascii=False)
+    except Exception:
+        estimation_json_str = None
+
     est_id = f"E{len(_json('estimates','estimates.json'))+1:03d}" if _use_json_fallback() else _new_id()
     now = _now()
-    est = {"id": est_id, "job_card_id": job_card_id, "createdAt": now,
-           "status": "pending",
-           "parts_total": data.get("parts_total", 0), "labor_total": data.get("labor_total", 0),
-           "tax": data.get("tax", 0), "grand_total": data.get("grand_total", 0), "lineItems": []}
+    est = {
+        "id": est_id,
+        "job_card_id": job_card_id,
+        "createdAt": now,
+        "status": "pending",
+        "parts_total": estimate_payload.get("parts_total", 0),
+        "labor_total": estimate_payload.get("labor_total", estimate_payload.get("labour_total", 0)),
+        "tax": estimate_payload.get("tax", 0),
+        "grand_total": estimate_payload.get("grand_total", estimate_payload.get("total_amount", 0)),
+        "estimation_json": estimation_json_obj,
+        "lineItems": estimate_payload.get("line_items") or estimate_payload.get("lineItems") or [],
+    }
     if _db_available():
-        ok = _sql_exec(
-            """INSERT INTO Estimates (id, job_card_id, status, parts_total, labor_total, tax, grand_total)
-               VALUES (?,?,?,?,?,?,?)""",
-            (est_id, job_card_id, "pending",
-             est["parts_total"], est["labor_total"], est["tax"], est["grand_total"])
-        )
-        if ok:
-            return get_estimate(est_id) or est
+        existing_rows = _sql_rows("SELECT id, status FROM Estimates WHERE job_card_id = ?", (job_card_id,))
+        if existing_rows:
+            existing_id = existing_rows[0].get("id")
+            existing_status = existing_rows[0].get("status") or "pending"
+            est["id"] = existing_id
+            est["status"] = existing_status
+            ok = _sql_exec(
+                """UPDATE Estimates
+                   SET parts_total = ?, labor_total = ?, tax = ?, grand_total = ?, estimation_json = ?
+                   WHERE id = ?""",
+                (est["parts_total"], est["labor_total"], est["tax"], est["grand_total"], estimation_json_str, existing_id)
+            )
+            if ok:
+                return get_estimate(existing_id) or est
+        else:
+            ok = _sql_exec(
+                """INSERT INTO Estimates (id, job_card_id, status, parts_total, labor_total, tax, grand_total, estimation_json)
+                   VALUES (?,?,?,?,?,?,?,?)""",
+                (est_id, job_card_id, "pending",
+                 est["parts_total"], est["labor_total"], est["tax"], est["grand_total"], estimation_json_str)
+            )
+            if ok:
+                return get_estimate(est_id) or est
     if _use_json_fallback():
+        existing = next((e for e in _json("estimates", "estimates.json") if e.get("job_card_id") == job_card_id), None)
+        if existing:
+            existing_status = existing.get("status", "pending")
+            existing.update({
+                "parts_total": est["parts_total"],
+                "labor_total": est["labor_total"],
+                "tax": est["tax"],
+                "grand_total": est["grand_total"],
+                "estimation_json": est["estimation_json"],
+                "lineItems": est["lineItems"],
+            })
+            existing["status"] = existing_status
+            return existing
         _json("estimates", "estimates.json").append(est)
     return est
 
@@ -401,6 +505,30 @@ def update_estimate_status(estimate_id: str, status: str) -> Optional[dict]:
                 est["status"] = status
                 return est
     return None
+
+# ─── Estimates ────────────────────────────────────────────────────────────────
+
+def get_all_estimates_with_job() -> list[dict]:
+    results = []
+
+    # SQL MODE
+    if _db_available():
+        rows = _sql_rows("SELECT * FROM Estimates", ())
+
+        for r in rows:
+            est = _map_est(r)
+
+            # # attach line items (same pattern you already use)
+            # est["lineItems"] = _sql_rows(
+            #     "SELECT * FROM Estimate_Line_Items WHERE estimate_id = ?",
+            #     (est["id"],)
+            # )
+
+            # Only include if estimate exists (extra safety)
+            if est.get("job_card_id"):
+                results.append(est)
+
+        return results
 
 # ─── Customers ────────────────────────────────────────────────────────────────
 

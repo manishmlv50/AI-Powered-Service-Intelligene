@@ -28,6 +28,8 @@ export default function NewIntake() {
     const [saving, setSaving] = useState(false)
     const fileRef = useRef()
 
+    const prettify = value => (value || '').toString().replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())
+
     const { recording, error: micError, start: startRec, stop: stopRec } = useSpeech({
         onPartial: txt => setComplaint(c => (c + ' ' + txt).trim()),
         onFinal: txt => setComplaint(c => (c + ' ' + txt).trim() + ' '),
@@ -73,7 +75,6 @@ export default function NewIntake() {
             // Pass vehicle_id if resolved from VIN search
             ...(vinResult?.vehicle_id ? { vehicle_id: vinResult.vehicle_id } : {}),
         }
-        const res = await agentCall(payload)
         const base = {
             customer_name: vinResult?.customer_name || '',
             customer_id: vinResult?.customer_id || '',
@@ -89,18 +90,29 @@ export default function NewIntake() {
             obd_fault_codes: [],
             advisor_id: user?.user_id,
         }
-        if (res) {
-            const r = res
+        try {
+            const res = await agentCall(payload)
+            const r = (res && typeof res === 'object') ? res : {}
+            const fromJobCard = (r.job_card && typeof r.job_card === 'object') ? r.job_card : {}
+            const obdCodes = Array.isArray(fromJobCard.obd_codes)
+                ? fromJobCard.obd_codes
+                : (Array.isArray(r.obd_fault_codes) ? r.obd_fault_codes : [])
+            const tasks = Array.isArray(fromJobCard.tasks) ? fromJobCard.tasks : []
+
             setJobCard({
                 ...base,
-                complaint: r.customer_complaint || complaint,
+                agent: r.agent || '',
+                service_type: r.service_type || 'diagnostic',
+                vehicle_id: fromJobCard.vehicle_id || base.vehicle_id,
+                make_model: fromJobCard.make_model || `${base.vehicle_make || ''} ${base.vehicle_model || ''} ${base.vehicle_year || ''}`.trim(),
+                complaint: fromJobCard.complaint || r.customer_complaint || complaint,
                 obd_report_text: obdText,
                 obd_report_summary: r.obd_report_summary || '',
-                service_type: r.service_type || 'diagnostic',
-                risk_indicators: r.risk_indicators || [],
-                obd_fault_codes: r.obd_fault_codes || [],
+                risk_indicators: Array.isArray(r.risk_indicators) ? r.risk_indicators : [],
+                obd_fault_codes: obdCodes,
+                tasks,
             })
-        } else {
+        } catch {
             setJobCard(base)
         }
     }
@@ -301,11 +313,31 @@ export default function NewIntake() {
                                 <button className="btn btn-ghost btn-sm" onClick={() => setJobCard(null)}><X size={14} /></button>
                             </div>
                             <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+                                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+                                    {jobCard.agent && (
+                                        <span style={{
+                                            fontSize: '0.72rem', padding: '4px 10px', borderRadius: 999,
+                                            background: 'rgba(108,99,255,0.1)', border: '1px solid rgba(108,99,255,0.2)', color: 'var(--primary)'
+                                        }}>
+                                            Agent: {jobCard.agent}
+                                        </span>
+                                    )}
+                                    <span style={{
+                                        fontSize: '0.72rem', padding: '4px 10px', borderRadius: 999,
+                                        background: 'var(--surface-3)', border: '1px solid var(--border)', color: 'var(--text-muted)'
+                                    }}>
+                                        Service: {prettify(jobCard.service_type || 'diagnostic')}
+                                    </span>
+                                    <span style={{
+                                        fontSize: '0.72rem', padding: '4px 10px', borderRadius: 999,
+                                        background: 'var(--surface-3)', border: '1px solid var(--border)', color: 'var(--text-muted)'
+                                    }}>
+                                        Vehicle ID: {jobCard.vehicle_id || vinResult?.vehicle_id || 'N/A'}
+                                    </span>
+                                </div>
                                 {[
                                     ['customer_name', 'Customer Name'],
-                                    ['vehicle_make', 'Vehicle Make'],
-                                    ['vehicle_model', 'Vehicle Model'],
-                                    ['vehicle_year', 'Vehicle Year'],
+                                    ['make_model', 'Make & Model'],
                                     ['vin', 'VIN'],
                                 ].map(([key, label]) => (
                                     <div key={key} className="form-group">
@@ -318,7 +350,7 @@ export default function NewIntake() {
                                     <label className="form-label">Service Type</label>
                                     <select className="form-control" value={jobCard.service_type || ''}
                                         onChange={e => setJobCard(j => ({ ...j, service_type: e.target.value }))}>
-                                        {['diagnostic', 'maintenance', 'repair', 'emission_check', 'electrical', 'brakes', 'transmission'].map(t => (
+                                        {['diagnostic', 'maintenance', 'repair', 'urgent_repair', 'emission_check', 'electrical', 'brakes', 'transmission'].map(t => (
                                             <option key={t} value={t}>{t.replace('_', ' ').replace(/\b\w/g, c => c.toUpperCase())}</option>
                                         ))}
                                     </select>
@@ -329,9 +361,36 @@ export default function NewIntake() {
                                         onChange={e => setJobCard(j => ({ ...j, complaint: e.target.value }))} />
                                 </div>
                                 <div className="form-group">
-                                    <label className="form-label">OBD Report Summary</label>
-                                    <textarea className="form-control" rows={3} value={jobCard.obd_report_summary || ''}
-                                        onChange={e => setJobCard(j => ({ ...j, obd_report_summary: e.target.value }))} />
+                                    <label className="form-label">OBD Fault Codes</label>
+                                    <textarea
+                                        className="form-control"
+                                        rows={4}
+                                        placeholder="One OBD code per line"
+                                        value={Array.isArray(jobCard.obd_fault_codes) ? jobCard.obd_fault_codes.join('\n') : ''}
+                                        onChange={e => setJobCard(j => ({
+                                            ...j,
+                                            obd_fault_codes: e.target.value
+                                                .split('\n')
+                                                .map(v => v.trim())
+                                                .filter(Boolean),
+                                        }))}
+                                    />
+                                </div>
+                                <div className="form-group">
+                                    <label className="form-label">Recommended Tasks</label>
+                                    <textarea
+                                        className="form-control"
+                                        rows={5}
+                                        placeholder="One task per line"
+                                        value={Array.isArray(jobCard.tasks) ? jobCard.tasks.join('\n') : ''}
+                                        onChange={e => setJobCard(j => ({
+                                            ...j,
+                                            tasks: e.target.value
+                                                .split('\n')
+                                                .map(v => v.trim())
+                                                .filter(Boolean),
+                                        }))}
+                                    />
                                 </div>
                                 <div className="form-group">
                                     <label className="form-label">OBD Report Text</label>

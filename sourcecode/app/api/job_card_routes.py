@@ -29,7 +29,8 @@ def _map(jc: dict) -> dict:
         "obd_document_id": jc.get("obdDocumentId"),
         "obd_report_text": jc.get("obdReportText"),
         "obd_report_summary": jc.get("obdReportSummary"),
-        "advisor_id": jc.get("advisorId"),
+        "tasks": jc.get("tasks"),
+        "intake_payload_json": jc.get("intakePayloadJson")
     }
 
 @router.get("", response_model=list[dict])

@@ -7,6 +7,7 @@ from app.application import db_service as db
 router = APIRouter(prefix="/estimates", tags=["Estimates"])
 
 def _map_estimate(est: dict) -> dict:
+    estimation_json = est.get("estimation_json")
     return {
         "id": est.get("id"),
         "job_card_id": est.get("job_card_id"),
@@ -17,6 +18,8 @@ def _map_estimate(est: dict) -> dict:
         "tax": est.get("tax", 0),
         "total_amount": est.get("grand_total", 0),
         "line_items": est.get("lineItems", []),
+        "estimation_json": estimation_json,
+        "estimate": estimation_json if isinstance(estimation_json, dict) else None,
     }
 
 @router.get("/job/{job_card_id}", response_model=dict)
@@ -25,6 +28,10 @@ def get_estimate_for_job(job_card_id: str):
     if not est:
         raise HTTPException(status_code=404, detail=f"No estimate for job {job_card_id}")
     return _map_estimate(est)
+
+@router.get("", response_model=list[dict])
+def list_estimates():
+    return [_map_estimate(e) for e in db.get_all_estimates_with_job()]
 
 @router.get("/{estimate_id}", response_model=dict)
 def get_estimate(estimate_id: str):

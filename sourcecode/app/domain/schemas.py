@@ -66,6 +66,10 @@ class JobCardCreate(BaseModel):
     advisor_id: Optional[str] = None
     obd_report_text: Optional[str] = None
     obd_report_summary: Optional[str] = None
+    tasks: Optional[List[str]] = None
+    agent: Optional[str] = None
+    make_model: Optional[str] = None
+    intake_payload_json: Optional[dict] = None
 
 class JobCardUpdate(BaseModel):
     customer_name: Optional[str] = None
@@ -81,6 +85,10 @@ class JobCardUpdate(BaseModel):
     status: Optional[str] = None
     obd_report_text: Optional[str] = None
     obd_report_summary: Optional[str] = None
+    tasks: Optional[List[str]] = None
+    agent: Optional[str] = None
+    make_model: Optional[str] = None
+    intake_payload_json: Optional[dict] = None
 
 class JobCardStatusUpdate(BaseModel):
     status: str
@@ -105,6 +113,8 @@ class JobCardResponse(BaseModel):
     advisor_id: Optional[str] = None
     obd_report_text: Optional[str] = None
     obd_report_summary: Optional[str] = None
+    tasks: Optional[List[str]] = None
+    intake_payload_json: Optional[dict] = None
 
 # ─── Estimate ─────────────────────────────────────────────────────────────────
 
