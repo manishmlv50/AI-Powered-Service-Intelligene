@@ -9,6 +9,21 @@ from app.domain.schemas import MasterAgentRequest, MasterAgentResponse
 
 def _build_prompt(payload: MasterAgentRequest) -> str:
     """Build a structured prompt that always carries the action field."""
+    if payload.action == "communication":
+        if not payload.customer_id or not payload.job_card_id:
+            raise ValueError("communication action requires customer_id and job_card_id.")
+        prompt_obj: dict = {
+            "action": payload.action,
+            "customer_id": payload.customer_id,
+            "job_card_id": payload.job_card_id,
+        }
+        if payload.question:
+            prompt_obj["question"] = payload.question
+        if payload.user_input:
+            prompt_obj["user_input"] = payload.user_input
+        if payload.context:
+            prompt_obj["context"] = payload.context
+        return _json.dumps(prompt_obj)
     # If job_card is provided, build the exact JSON structure the estimator expects.
     if payload.job_card:
         prompt_obj: dict = {}
@@ -30,6 +45,8 @@ def _build_prompt(payload: MasterAgentRequest) -> str:
 
     if payload.vehicle_id:
         parts.append(f"Vehicle ID: {payload.vehicle_id}")
+    if payload.customer_id:
+        parts.append(f"Customer ID: {payload.customer_id}")
     if payload.customer_complaint:
         parts.append(f"Complaint: {payload.customer_complaint}")
     if payload.obd_report_text:
