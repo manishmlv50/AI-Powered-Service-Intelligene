@@ -126,7 +126,7 @@ flowchart LR
         FE_C[Customer Portal & Chat]
         FE_A[Advisor Portal]
         FE_M[Manager Dashboard]
-        FE_AI[AI FAB & Chat Panel]
+        FE_AI[AI Chat Panel]
     end
 
     CU --> FE_C
