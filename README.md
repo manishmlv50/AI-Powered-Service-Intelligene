@@ -64,16 +64,16 @@ The **Service Advisor Co‑Pilot** is a multi‑agent AI assistant running on sy
 - Listens to **intake complaints** (typed or spoken) and **OBD reports**, turning them into structured job cards.
 - Converts faults and complaints into **AI‑generated estimates** with line‑items (parts, labor, taxes).
 - Drives a **two‑sided conversation**: advisors and managers use a portal, customers use a chat UI.
-- Continuously updates **ETA and risk** as work progresses, highlighting delays and high‑impact jobs.
+- Shows **prototype ETA and risk levels** for jobs in the manager dashboard (currently heuristic; a dedicated ETA/Risk agent is planned).
 
 Under the hood, there is:
 
-- An **Orchestrator (Master) Agent** that understands user intent (intake, estimate, explanation, ETA, etc.).
-- Four **specialist agents**:
-  - **Intake Agent** – builds job cards from natural language + OBD.
-  - **Estimation Agent** – maps fault codes to parts & labor and computes amounts.
-  - **Communication Agent** – crafts customer‑facing messages and explanations.
-  - **ETA/Risk Agent** – estimates completion times and flags high‑risk cases.
+- An **Orchestrator (Master) Agent** that understands user intent (intake, estimate, explanation, etc.).
+- Three **specialist agents** implemented today:
+   - **Intake Agent** – builds job cards from natural language + OBD.
+   - **Estimation Agent** – maps fault codes to parts & labor and computes amounts.
+   - **Communication Agent** – crafts customer‑facing messages and explanations.
+   - *(Planned)* **ETA/Risk Agent** – a future agent to predict completion time and flag high‑risk combinations.
 
 These agents are backed by **Azure OpenAI** and a **synthetic workshop database** (Azure SQL + JSON fixtures), and exposed as a simple **FastAPI backend** with a **React/Vite frontend**.
 
@@ -97,7 +97,7 @@ These agents are backed by **Azure OpenAI** and a **synthetic workshop database*
 
 4. **During-Service Updates & Completion**  
    - New findings or delays are recorded by the advisor.  
-   - ETA/Risk Agent updates predictions; Communication Agent sends clear updates.  
+   - The system updates a simple ETA and risk level for jobs (currently heuristic; a dedicated ETA/Risk agent is on the roadmap), and the Communication Agent sends clear updates.  
    - On completion, the job card is marked closed and a concise summary is sent to the customer.
 
 ### 3.3 Technical Overview
@@ -107,7 +107,7 @@ At a high level, the system consists of:
 - **Frontend (React + Vite SPA)** – Advisor, Manager and Customer portals with role‑based routing, dashboards, job card views, and an AI floating action button that triggers agent workflows.
 - **Backend (FastAPI)** – REST APIs for auth, job cards, estimates, customers, dashboards, intake, speech, and the master agent endpoint.
 - **Agent Orchestration Layer** – A Master Agent that builds structured prompts (action, job card context, question, etc.), and calls Azure OpenAI Responses API to execute multi‑step reasoning via specialist tools/agents.
-- **Data Layer** – Azure SQL (primary) plus JSON fixture fallback for customers, vehicles, job cards, parts, labor, fault mappings; Azure Blob Storage for OBD file uploads.
+- **Data Layer** – Azure SQL (primary) plus JSON fixture fallback for customers, vehicles, job cards, parts, labor, fault mappings. Azure Blob Storage for raw OBD report files is part of the target architecture but not yet wired into the current MVP.
 - **AI & Speech Services** – Azure OpenAI for text (LLM + Responses) and audio transcription (speech‑to‑text).
 
 ---
@@ -152,19 +152,17 @@ flowchart LR
     FE_M --> BE
 
     %% Agent Layer
-    subgraph AG[Agent Orchestration]
-        MASTER[Orchestrator / Master Agent]
-        INTAKE[Intake Agent]
-        EST[Estimation Agent]
-        COMM[Communication Agent]
-        ETA[ETA & Risk Agent]
-    end
+   subgraph AG[Agent Orchestration]
+      MASTER[Orchestrator / Master Agent]
+      INTAKE[Intake Agent]
+      EST[Estimation Agent]
+      COMM[Communication Agent]
+   end
 
-    API_AG --> MASTER
-    MASTER --> INTAKE
-    MASTER --> EST
-    MASTER --> COMM
-    MASTER --> ETA
+   API_AG --> MASTER
+   MASTER --> INTAKE
+   MASTER --> EST
+   MASTER --> COMM
 
     %% AI Services
     subgraph AI[Azure OpenAI]
@@ -176,23 +174,19 @@ flowchart LR
     API_SPEECH --> STT
 
     %% Data Layer
-    subgraph DATA[Data & Storage]
-        SQL[(Azure SQL Database)]
-        BLOB[(Azure Blob Storage\nOBD Reports)]
-        JSON[(JSON Fixtures\nLocal Fallback)]
-    end
+   subgraph DATA[Data & Storage]
+      SQL[(Azure SQL Database)]
+      JSON[(JSON Fixtures\nLocal Fallback)]
+      BLOB[(Planned: Azure Blob Storage\nOBD Reports)]
+   end
 
-    API_JOB <--> SQL
-    API_EST <--> SQL
-    API_CUST <--> SQL
-    API_DASH <--> SQL
-    INTAKE --> SQL
-    EST --> SQL
+   API_JOB <--> SQL
+   API_EST <--> SQL
+   API_CUST <--> SQL
+   API_DASH <--> SQL
+   EST --> SQL
 
-    API_JOB --> BLOB
-    INTAKE --> BLOB
-
-    BE --> JSON
+   BE --> JSON
 
     classDef user fill:#fdf2e9,stroke:#d35400,stroke-width:1.5px;
 ```
@@ -215,18 +209,16 @@ This diagram emphasizes clear layering: user channels → SPA frontend → FastA
   - `job_card_routes.py` – list/get/create/update job cards and update status.  
   - `estimate_routes.py` – list/get/create/approve/reject estimates.  
   - `dashboard_routes.py` – workshop summary metrics.  
-  - `intake_routes.py` – intake workflows, including OBD uploads to blob.  
   - `agent_routes.py` – master agent endpoint (`POST /api/agents/master`).  
   - `speech_routes.py` – REST + WebSocket endpoints for audio transcription.
 
 - **Application services**:  
   - `agent_orchestration_service.py` – builds rich prompts and calls the Master Agent.  
   - `db_service.py` – abstracts database access, with intelligent fallback to JSON fixtures when SQL is unavailable or disabled.  
-  - `intake_service.py`, `speech_service.py`, `auth_service.py` – encapsulate business logic for respective domains.
+   - `speech_service.py`, `auth_service.py` – encapsulate business logic for respective domains.
 
 - **Infrastructure**:  
   - `sql_repository.py` – low‑level SQL access via `pyodbc`.  
-  - `blob_storage.py` – Azure Blob client for OBD reports.  
   - `speech_client.py` – Azure OpenAI audio transcription client.  
   - `settings.py` – Pydantic settings model binding environment variables.
 
@@ -239,8 +231,8 @@ This diagram emphasizes clear layering: user channels → SPA frontend → FastA
 - **Specialist Agents**
   - **Intake Agent** – given a complaint + OBD content, infers likely systems, risk markers, and recommended tasks, then writes/updates job cards.  
   - **Estimation Agent** – given job context and fault/OBD codes, resolves required parts & labor from SQL/JSON and calculates totals.  
-  - **Communication Agent** – turns structured outputs into customer‑friendly explanations and next‑step prompts.  
-  - **ETA/Risk Agent** – predicts completion time and flags high‑risk combinations (safety, regulatory, customer priority).
+   - **Communication Agent** – turns structured outputs into customer‑friendly explanations and next‑step prompts.  
+   - *(Planned)* **ETA/Risk Agent** – a future specialist agent to predict completion time and flag high‑risk combinations (safety, regulatory, customer priority).
 
 - **LLM Integration**
   - All agents use Azure OpenAI via the Responses API, with structured tool calls and constrained outputs mapped to internal schemas.
@@ -269,8 +261,8 @@ This diagram emphasizes clear layering: user channels → SPA frontend → FastA
   - Used in two ways: to seed SQL and as fallback when `USE_JSON_FALLBACK` is enabled or DB is unavailable.
 
 - **Azure Blob Storage**:  
-  - Stores raw OBD report files uploaded during intake.  
-  - Blob URLs are linked to job cards and can be used by the Intake/Estimation agents as context.
+   - Part of the target architecture for storing raw OBD report files.  
+   - In the current MVP, OBD report content is handled via text fields in SQL/JSON; blob integration and blob URLs are not yet wired into the runtime.
 
 ---
 
@@ -284,8 +276,8 @@ This diagram emphasizes clear layering: user channels → SPA frontend → FastA
 
 ### 6.2 Reasoning & Multi-step Thinking (20%)
 
-- **Multi‑agent orchestration**: master agent routes to Intake, Estimation, Communication and ETA/Risk agents.  
-- End‑to‑end flows: complaint + OBD → job card → estimate → customer Q&A & approval → updated ETA and risk.  
+- **Multi‑agent orchestration**: master agent routes to Intake, Estimation and Communication agents (with a dedicated ETA/Risk agent planned).  
+- End‑to‑end flows: complaint + OBD → job card → estimate → customer Q&A & approval → manager dashboard with prototype ETA and risk levels.  
 - Structured prompts and schemas enforce stepwise reasoning and consistent outputs, rather than one‑shot free‑text responses.
 
 ### 6.3 Creativity & Originality (15%)
@@ -304,7 +296,7 @@ This diagram emphasizes clear layering: user channels → SPA frontend → FastA
 
 - **Synthetic data only** – safe for demos and hackathons; no production data.  
 - **Graceful degradation** – automatic JSON fallback when SQL is unavailable; avoids hard failures.  
-- **Scoped integration** – external calls limited to Azure OpenAI, Azure SQL, and Azure Blob; no destructive side effects.  
+- **Scoped integration** – external calls limited to Azure OpenAI and Azure SQL in the current MVP (Azure Blob is reserved for future OBD file storage); no destructive side effects.  
 - Clear separation of concerns (frontend, API, agents, data) and environment‑based configuration of secrets.
 
 ---
@@ -318,9 +310,9 @@ This diagram emphasizes clear layering: user channels → SPA frontend → FastA
 - **npm**: comes with Node; used for frontend dependencies.  
 - **Git**: for cloning the repository.
 
-### 7.2 Azure Resources (Required for Full MVP)
+### 7.2 Azure Resources
 
-To experience the full capability of the system (agents, data, speech), provision:
+To experience the full capability of the implemented MVP (agents, data, speech), provision:
 
 1. **Azure OpenAI – Text (Responses / Chat)**  
    - One deployment supporting the Responses or Chat Completions API.
@@ -331,8 +323,10 @@ To experience the full capability of the system (agents, data, speech), provisio
 3. **Azure SQL Database**  
    - Single database instance; apply schema and sample data from the SQL scripts under `docs/backend/data`.
 
+For the **target architecture** (not yet fully wired), you can additionally provision:
+
 4. **Azure Blob Storage**  
-   - Storage account and a container (e.g., `obd-reports`) for OBD files.
+   - Storage account and a container (e.g., `obd-reports`) for OBD files, to be used once blob upload integration is enabled.
 
 ### 7.3 Environment Variables
 
@@ -349,7 +343,7 @@ Create a `.env` file under `sourcecode/` (or configure equivalent environment va
 
 - `AZURE_SQL_CONNECTION_STRING` – ADO‑style connection string (server, database, user, password). The backend derives the ODBC string from this.
 
-**Azure Blob Storage**
+**Azure Blob Storage (for future blob integration)**
 
 - `AZURE_STORAGE_CONNECTION_STRING` – connection string for the storage account.  
 - `BLOB_CONTAINER_NAME` – container name for OBD uploads.
@@ -456,7 +450,7 @@ Once both backend and frontend are running:
 - **Server**: Uvicorn  
 - **Data Validation**: Pydantic models  
 - **Database Access**: `pyodbc` + custom repository layer  
-- **Blob & AI SDKs**: Azure SDK / REST integrations for Blob and Azure OpenAI  
+- **AI SDKs**: Azure SDK / REST integrations for Azure OpenAI  
 - **Multi-Agent Orchestration**: Python agents calling Azure OpenAI Responses API
 
 ### 9.3 AI & Data
@@ -464,8 +458,8 @@ Once both backend and frontend are running:
 - **LLM & Responses**: Azure OpenAI (GPT‑class models)  
 - **Speech-to-Text**: Azure OpenAI (audio transcription)  
 - **Primary Store**: Azure SQL Database  
-- **Files**: Azure Blob Storage  
-- **Synthetic Data**: JSON fixtures and SQL seed scripts
+- **Synthetic Data**: JSON fixtures and SQL seed scripts  
+- *(Planned)* **Files**: Azure Blob Storage for raw OBD reports in future iterations
 
 ### 9.4 Dev & Ops
 
