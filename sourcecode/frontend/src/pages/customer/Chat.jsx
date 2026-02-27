@@ -140,7 +140,7 @@ export default function CustomerChat() {
     const approve = async () => {
         await sendApproval(
             'I approve the estimate.',
-            `✅ **Estimate approved!** Great choice. We'll begin work on your vehicle right away. You'll receive updates here.`
+            ` **Estimate approved!** Great choice. We'll begin work on your vehicle right away. You'll receive updates here.`
         )
     }
 

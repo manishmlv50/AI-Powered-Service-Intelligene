@@ -40,7 +40,7 @@ def _load(filename: str) -> list[dict]:
                 return []
             return json.loads(content)
         except json.JSONDecodeError as exc:
-            logger.warning(f"⚠️  Could not parse {filename}: {exc} — using empty list")
+            logger.warning(f"  Could not parse {filename}: {exc} — using empty list")
     return []
 
 def _json(key: str, filename: str) -> list[dict]:
@@ -113,17 +113,17 @@ def _get_conn():
                 c = pyodbc.connect(odbc_str, timeout=10)
                 c.autocommit = True
                 _conn = c
-                logger.info(f"✅ Azure SQL connected via [{driver}]")
+                logger.info(f" Azure SQL connected via [{driver}]")
                 return _conn
             except pyodbc.Error:
                 continue
-        logger.warning("⚠️  No suitable ODBC driver — install 'ODBC Driver 18' from https://aka.ms/odbc18")
+        logger.warning("  No suitable ODBC driver — install 'ODBC Driver 18' from https://aka.ms/odbc18")
         return None
     except ImportError:
-        logger.warning("⚠️  pyodbc not installed — pip install pyodbc")
+        logger.warning("  pyodbc not installed — pip install pyodbc")
         return None
     except Exception as exc:
-        logger.warning(f"⚠️  Azure SQL error: {exc}")
+        logger.warning(f"  Azure SQL error: {exc}")
         return None
 
 def _db_available() -> bool:
@@ -141,7 +141,7 @@ def _sql_rows(query: str, params: tuple = ()) -> list[dict]:
         rows = [dict(zip(cols, row)) for row in cur.fetchall()]
         return rows
     except Exception as exc:
-        logger.warning(f"⚠️  SQL query failed: {exc}")
+        logger.warning(f"  SQL query failed: {exc}")
         return []
     finally:
         if cur:
@@ -156,7 +156,7 @@ def _sql_exec(query: str, params: tuple = ()) -> bool:
         conn.execute(query, params)
         return True
     except Exception as exc:
-        logger.warning(f"⚠️  SQL exec failed: {exc}")
+        logger.warning(f"  SQL exec failed: {exc}")
         return False
 
 # ─── Column mappers (v2 schema) ───────────────────────────────────────────────

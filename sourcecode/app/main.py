@@ -24,16 +24,16 @@ speech_router = None
 try:
     from app.api.agent_routes import router as _agent_router
     agent_router = _agent_router
-    logger.info("✅ Agent routes loaded")
+    logger.info(" Agent routes loaded")
 except Exception as e:
-    logger.warning(f"⚠️  Agent routes unavailable (Azure AI not configured): {e}")
+    logger.warning(f"  Agent routes unavailable (Azure AI not configured): {e}")
 
 try:
     from app.api.speech_routes import router as _speech_router
     speech_router = _speech_router
-    logger.info("✅ Speech routes loaded")
+    logger.info(" Speech routes loaded")
 except Exception as e:
-    logger.warning(f"⚠️  Speech routes unavailable (Azure Speech not configured): {e}")
+    logger.warning(f"  Speech routes unavailable (Azure Speech not configured): {e}")
 
 # ─── App ──────────────────────────────────────────────────────────────────────
 app = FastAPI(title="Service Intelligence API", version="1.0.0")

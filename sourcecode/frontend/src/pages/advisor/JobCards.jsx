@@ -13,7 +13,7 @@ export default function JobCards() {
 
     const abortRef = useRef(null)
 
-    // ✅ stable fetch function
+    //  stable fetch function
     const fetchJobs = useCallback(async (status) => {
         try {
             setLoading(true)

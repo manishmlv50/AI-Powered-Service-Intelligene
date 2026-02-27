@@ -12,7 +12,7 @@ if not conn:
     print("❌ Could not connect to Azure SQL. Check your .env.")
     sys.exit(1)
 
-print("✅ Connected!\n")
+print(" Connected!\n")
 
 # List all user tables
 tables = _sql_rows(
