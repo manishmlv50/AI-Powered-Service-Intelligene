@@ -24,7 +24,7 @@ export default function LoginPage() {
             const routes = { advisor: '/advisor', manager: '/manager', customer: '/customer/chat' }
             navigate(routes[user.role] || '/')
         } catch (err) {
-            setError('Invalid credentials. Try advisor / demo, manager / demo, or customer / demo')
+            setError('Invalid credentials. Try advisor / demo, manager / demo, customer / demo, or C001 / customer123')
         } finally { setLoading(false) }
     }
 
@@ -60,8 +60,8 @@ export default function LoginPage() {
 
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
                         <div className="form-group">
-                            <label className="form-label">Username</label>
-                            <input className="form-control" placeholder="advisor / manager / customer"
+                            <label className="form-label">Username / User ID</label>
+                            <input className="form-control" placeholder="username or user ID (e.g., rohit.sharma or C001)"
                                 value={form.username} onChange={e => setForm(f => ({ ...f, username: e.target.value }))} />
                         </div>
                         <div className="form-group">

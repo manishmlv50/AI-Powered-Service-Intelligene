@@ -21,8 +21,22 @@ _DEMO_USERS: dict[str, dict] = {
 # token → user info
 _sessions: dict[str, dict] = {}
 
+def _normalize_identifier(identifier: str) -> str:
+    return identifier.strip().lower()
+
+def _resolve_demo_user(identifier: str) -> Optional[dict]:
+    normalized_identifier = _normalize_identifier(identifier)
+    user = _DEMO_USERS.get(normalized_identifier)
+    if user:
+        return user
+
+    for demo_user in _DEMO_USERS.values():
+        if str(demo_user.get("user_id", "")).strip().lower() == normalized_identifier:
+            return demo_user
+    return None
+
 def login(username: str, password: str) -> Optional[dict]:
-    user = _DEMO_USERS.get(username.lower())
+    user = _resolve_demo_user(username)
     if user and user["password"] == password:
         token = secrets.token_hex(24)
         session = {"token": token, "role": user["role"], "user_id": user["user_id"], "name": user["name"]}
