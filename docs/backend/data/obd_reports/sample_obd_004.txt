@@ -1,0 +1,16 @@
+OBD-II Diagnostic Report
+Vehicle: Mahindra XUV500 2019
+VIN: MAXUV19VIN000456
+Scan Date: 2026-01-28
+
+Detected Trouble Codes:
+--------------------------------
+C1234 - Front Brake Pad Wear Detected
+
+Freeze Frame Data:
+Engine RPM: 800 rpm
+Vehicle Speed: 0 km/h
+Brake Fluid Level: Low
+
+Status:
+Check Engine Light: ON

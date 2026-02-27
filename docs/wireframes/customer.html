@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Service Center – Customer</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: system-ui, sans-serif; background: #f5f5f5; color: #333; }
+    .site-header { display: flex; align-items: center; justify-content: space-between; padding: 0.75rem 1.5rem; background: #fff; border-bottom: 2px solid #333; }
+    .site-header .logo { font-weight: bold; font-size: 1.1rem; }
+    .site-header .user { font-size: 0.9rem; color: #555; }
+    .site-header .user span { color: #333; }
+    .site-header a { margin-left: 1rem; color: #666; text-decoration: none; }
+    .main { max-width: 640px; margin: 0 auto; padding: 1.5rem; }
+    .screen { display: none; }
+    .screen.active { display: block; }
+    .wf-block { border: 2px dashed #999; padding: 1rem; margin-bottom: 1rem; background: #fff; border-radius: 6px; }
+    .wf-label { font-size: 0.75rem; color: #666; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.5rem; }
+    .wf-chat-bubble { max-width: 85%; padding: 0.75rem 1rem; margin-bottom: 0.5rem; border-radius: 12px; border: 2px dashed #999; }
+    .wf-chat-bubble.system { background: #e8e8e8; margin-left: 0; margin-right: auto; }
+    .wf-chat-bubble.user { background: #f0f7ff; border-color: #b8d4ff; margin-left: auto; margin-right: 0; }
+    .wf-card { border: 2px dashed #999; padding: 1rem; margin: 0.5rem 0; background: #fafafa; border-radius: 8px; }
+    .wf-btn { display: inline-block; padding: 0.5rem 1rem; margin-right: 0.5rem; margin-bottom: 0.5rem; border: 2px solid #333; background: #fff; cursor: pointer; font-size: 0.9rem; border-radius: 4px; }
+    .wf-btn.primary { background: #333; color: #fff; }
+    .chat-input-row { display: flex; gap: 0.5rem; margin-top: 1rem; }
+    .chat-input-row input { flex: 1; padding: 0.6rem; border: 1px solid #999; border-radius: 6px; }
+    .ai-assistant-fab { position: fixed; bottom: 1.5rem; right: 1.5rem; width: 52px; height: 52px; border-radius: 50%; border: 2px solid #333; background: #333; color: #fff; cursor: pointer; font-size: 0.9rem; z-index: 100; box-shadow: 0 2px 8px rgba(0,0,0,0.2); display: flex; align-items: center; justify-content: center; }
+    .ai-assistant-fab:hover { background: #555; }
+    .ai-assistant-panel { position: fixed; top: 0; right: -360px; width: 340px; height: 100vh; background: #fff; border-left: 2px solid #999; box-shadow: -4px 0 12px rgba(0,0,0,0.1); z-index: 101; transition: right 0.2s ease; overflow: hidden; display: flex; flex-direction: column; }
+    .ai-assistant-panel.open { right: 0; }
+    .ai-assistant-panel .ai-head { padding: 1rem; border-bottom: 1px solid #ddd; font-weight: bold; display: flex; justify-content: space-between; align-items: center; }
+    .ai-assistant-panel .ai-close { background: none; border: none; cursor: pointer; font-size: 1.2rem; }
+    .ai-assistant-panel .ai-desc { font-size: 0.8rem; color: #666; padding: 0 1rem 0.5rem; }
+    .ai-assistant-panel .ai-messages { flex: 1; overflow-y: auto; padding: 1rem; font-size: 0.85rem; }
+    .ai-assistant-panel .ai-msg { margin-bottom: 0.75rem; padding: 0.5rem 0.75rem; border-radius: 6px; }
+    .ai-assistant-panel .ai-msg.user { background: #e8e8e8; margin-left: 1rem; }
+    .ai-assistant-panel .ai-msg.bot { background: #f0f7ff; border: 1px solid #b8d4ff; }
+    .ai-assistant-panel .ai-input-row { padding: 0.75rem; border-top: 1px solid #ddd; display: flex; gap: 0.5rem; }
+    .ai-assistant-panel .ai-input-row input { flex: 1; padding: 0.5rem; border: 1px solid #999; border-radius: 4px; }
+    .ai-assistant-panel .ai-input-row button { padding: 0.5rem 1rem; border: 2px solid #333; background: #333; color: #fff; cursor: pointer; border-radius: 4px; }
+    .nav-tabs { display: flex; gap: 0.5rem; margin-bottom: 1rem; }
+    .nav-tabs button { padding: 0.5rem 1rem; border: 1px solid #999; background: #fff; cursor: pointer; border-radius: 4px; font-size: 0.85rem; }
+    .nav-tabs button.active { background: #333; color: #fff; border-color: #333; }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <div class="logo">Service Center</div>
+    <div class="user"><span>Priya Mehta</span> (Customer) <a href="#">Logout</a></div>
+  </header>
+  <main class="main">
+    <div class="nav-tabs">
+      <button type="button" class="tab-btn active" data-screen="chat">Messages</button>
+      <button type="button" class="tab-btn" data-screen="past-jobs">Past jobs</button>
+    </div>
+
+    <!-- Chat / AI Assistant (main customer flow) -->
+    <section id="chat" class="screen active">
+      <div class="wf-block">
+        <div class="wf-label">Your AI Assistant — approvals, questions, updates</div>
+        <div id="chatbot-messages">
+          <div class="wf-chat-bubble system">
+            Your estimate for job <strong>JC-2025-0040</strong> (2024 Hyundai Tucson) is ready. Total: <strong>$429.00</strong>. Please review and respond.
+          </div>
+          <div class="wf-card">
+            <div class="wf-label">Estimate summary</div>
+            <p>Priya Mehta | 2024 Hyundai Tucson</p>
+            <p>Parts and labor as per inspection. Line items: Oil change, tire rotation, cabin filter.</p>
+            <p><strong>Total: $429.00</strong></p>
+            <button type="button" class="wf-btn">View full estimate</button>
+            <button type="button" class="wf-btn primary" id="customer-accept">Accept</button>
+            <button type="button" class="wf-btn" id="customer-reject">Reject</button>
+          </div>
+          <div class="wf-chat-bubble user">Why is brake pad replacement needed?</div>
+          <div class="wf-chat-bubble system">Based on the inspection and mileage, the front brake pads are worn below the recommended thickness. Replacing them restores safe braking distance. The technician can show you the measurement if you’d like.</div>
+        </div>
+      </div>
+      <div class="wf-block">
+        <div class="wf-label">Ask the AI — type and press Send</div>
+        <div class="chat-input-row">
+          <input type="text" id="chatbot-input" placeholder="Type your message..." />
+          <button type="button" class="wf-btn primary" id="chatbot-send">Send</button>
+        </div>
+        <p style="font-size: 0.8rem; color: #666; margin-top: 1rem;">Demo: <button type="button" class="wf-btn small" data-goto="revised-estimate">Revised estimate</button> <button type="button" class="wf-btn small" data-goto="completed">Completed job + Review</button></p>
+      </div>
+    </section>
+
+    <!-- Revised estimate (shown after advisor sends revision) -->
+    <section id="revised-estimate" class="screen">
+      <div class="wf-block">
+        <div class="wf-chat-bubble system">
+          We've sent a <strong>revised estimate</strong> for job JC-2025-0040. Please review and respond.
+        </div>
+        <div class="wf-card">
+          <div class="wf-label">Revised estimate</div>
+          <p>Additional line: Brake fluid exchange — $45.00</p>
+          <p><strong>New total: $327.49</strong></p>
+          <button type="button" class="wf-btn primary" id="customer-accept-revised">Accept revised</button>
+          <button type="button" class="wf-btn" id="customer-reject-revised">Reject</button>
+        </div>
+      </div>
+      <div class="wf-block">
+        <div class="chat-input-row">
+          <input type="text" id="chatbot-input-revised" placeholder="Ask a question..." />
+          <button type="button" class="wf-btn primary" id="chatbot-send-revised">Send</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Accepted / In progress -->
+    <section id="accepted" class="screen">
+      <div class="wf-block">
+        <div class="wf-chat-bubble system">
+          Thank you. Your approval has been received. We'll start the work and keep you updated here.
+        </div>
+      </div>
+      <div class="wf-block">
+        <div class="chat-input-row">
+          <input type="text" placeholder="Ask anything..." id="chatbot-input-accepted" />
+          <button type="button" class="wf-btn primary" id="chatbot-send-accepted">Send</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Completed + Review -->
+    <section id="completed" class="screen">
+      <div class="wf-block">
+        <div class="wf-chat-bubble system">
+          Your vehicle is ready for pickup. Job JC-2025-0039 (2021 Ford Escape) has been completed. Total: $189.00.
+        </div>
+        <div class="wf-card">
+          <p>Thank you for choosing us. We hope you had a good experience.</p>
+          <button type="button" class="wf-btn primary" data-goto="job-review">Review your experience</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Review placeholder -->
+    <section id="job-review" class="screen">
+      <div class="wf-block">
+        <div class="wf-label">Review — JC-2025-0039</div>
+        <p>Rate your experience (placeholder).</p>
+        <div style="margin: 1rem 0; min-height: 4rem; background: #eee; border: 1px dashed #999; border-radius: 4px;"></div>
+        <button type="button" class="wf-btn primary">Submit review</button>
+        <button type="button" class="wf-btn" data-goto="chat">Back to Messages</button>
+      </div>
+    </section>
+
+    <!-- Past jobs -->
+    <section id="past-jobs" class="screen">
+      <div class="wf-block">
+        <div class="wf-label">Past jobs</div>
+        <table style="width:100%; border-collapse: collapse; border: 1px solid #999;">
+          <thead><tr style="background: #e0e0e0;"><th style="padding:0.5rem; border:1px solid #999;">Job ID</th><th style="padding:0.5rem; border:1px solid #999;">Vehicle</th><th style="padding:0.5rem; border:1px solid #999;">Status</th><th style="padding:0.5rem; border:1px solid #999;">Completed</th><th style="padding:0.5rem; border:1px solid #999;">Actions</th></tr></thead>
+          <tbody>
+            <tr><td style="padding:0.5rem; border:1px solid #999;">JC-2025-0039</td><td style="padding:0.5rem; border:1px solid #999;">2021 Ford Escape</td><td style="padding:0.5rem; border:1px solid #999;">Completed</td><td style="padding:0.5rem; border:1px solid #999;">19 Feb 2025</td><td style="padding:0.5rem; border:1px solid #999;"><button type="button" class="wf-btn small" data-goto="job-review" style="padding:0.25rem 0.5rem; font-size:0.8rem">Review</button></td></tr>
+            <tr><td style="padding:0.5rem; border:1px solid #999;">JC-2025-0038</td><td style="padding:0.5rem; border:1px solid #999;">2020 Honda Civic</td><td style="padding:0.5rem; border:1px solid #999;">Completed</td><td style="padding:0.5rem; border:1px solid #999;">12 Feb 2025</td><td style="padding:0.5rem; border:1px solid #999;"><button type="button" class="wf-btn small" style="padding:0.25rem 0.5rem; font-size:0.8rem">View</button></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <!-- AI Assistant popup - available to everyone -->
+  <div id="ai-assistant-panel" class="ai-assistant-panel">
+    <div class="ai-head">AI Assistant <button type="button" class="ai-close" id="ai-panel-close" aria-label="Close">×</button></div>
+    <div class="ai-desc">Same AI as in the chat. Ask about your estimate, job status, or any question.</div>
+    <div class="ai-messages" id="ai-messages">
+      <div class="ai-msg bot">You can ask about your current estimate, job status, or pickup details. I'm here to help.</div>
+    </div>
+    <div class="ai-input-row">
+      <input type="text" id="ai-input" placeholder="Ask the AI..." />
+      <button type="button" id="ai-send">Send</button>
+    </div>
+  </div>
+  <button type="button" class="ai-assistant-fab" id="ai-assistant-fab" aria-label="Open AI Assistant">AI</button>
+
+  <script>
+    var chatbotReplies = [
+      'In the full app, the Communication Agent would answer using your job and RAG knowledge. For this wireframe, I\'m your AI assistant for this service.',
+      'I can help you understand any line item or next steps. You can Accept or Reject the estimate above, or ask another question.',
+      'Your vehicle is in good hands. You\'ll get a notification when the job is complete.'
+    ];
+    var replyIndex = 0;
+    function showScreen(screenId) {
+      document.querySelectorAll('.screen').forEach(function(s) { s.classList.remove('active'); });
+      var target = document.getElementById(screenId);
+      if (target) target.classList.add('active');
+      document.querySelectorAll('.tab-btn').forEach(function(b) {
+        b.classList.toggle('active', b.getAttribute('data-screen') === screenId);
+      });
+    }
+    document.querySelectorAll('.tab-btn').forEach(function(btn) {
+      btn.addEventListener('click', function() { showScreen(btn.getAttribute('data-screen')); });
+    });
+    document.querySelectorAll('[data-goto]').forEach(function(el) {
+      var goto = el.getAttribute('data-goto');
+      if (!goto) return;
+      el.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        showScreen(goto);
+      });
+    });
+    function addChatMessage(text, who) {
+      var div = document.createElement('div');
+      div.className = 'wf-chat-bubble ' + who;
+      div.textContent = text;
+      document.getElementById('chatbot-messages').appendChild(div);
+      document.getElementById('chatbot-messages').scrollTop = document.getElementById('chatbot-messages').scrollHeight;
+    }
+    document.getElementById('customer-accept').addEventListener('click', function() {
+      addChatMessage('I accept the estimate. Please proceed.', 'user');
+      addChatMessage('Thank you. Your approval has been recorded. We\'ll start the work and update you here.', 'system');
+      showScreen('accepted');
+    });
+    document.getElementById('customer-reject').addEventListener('click', function() {
+      addChatMessage('I need to decline this estimate.', 'user');
+      addChatMessage('Your response has been sent to the service advisor. They may contact you or send a revised estimate.', 'system');
+    });
+    document.getElementById('customer-accept-revised').addEventListener('click', function() {
+      addChatMessage('I accept the revised estimate.', 'user');
+      addChatMessage('Thank you. We\'ll proceed with the revised work.', 'system');
+      showScreen('accepted');
+    });
+    document.getElementById('customer-reject-revised').addEventListener('click', function() {
+      addChatMessage('I reject the revised estimate.', 'user');
+      addChatMessage('Noted. The advisor will follow up with you.', 'system');
+    });
+    document.getElementById('chatbot-send').addEventListener('click', function() {
+      var text = (document.getElementById('chatbot-input').value || '').trim();
+      if (!text) return;
+      addChatMessage(text, 'user');
+      document.getElementById('chatbot-input').value = '';
+      addChatMessage(chatbotReplies[replyIndex % chatbotReplies.length], 'system');
+      replyIndex++;
+    });
+    document.getElementById('chatbot-input').addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') document.getElementById('chatbot-send').click();
+    });
+    function sendRevised() {
+      var text = (document.getElementById('chatbot-input-revised').value || '').trim();
+      if (!text) return;
+      var div = document.createElement('div');
+      div.className = 'wf-chat-bubble user';
+      div.textContent = text;
+      document.querySelector('#revised-estimate .wf-block').appendChild(div);
+      document.getElementById('chatbot-input-revised').value = '';
+    }
+    document.getElementById('chatbot-send-revised').addEventListener('click', sendRevised);
+    document.getElementById('chatbot-input-revised').addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') { e.preventDefault(); sendRevised(); }
+    });
+    document.getElementById('chatbot-send-accepted').addEventListener('click', function() {
+      var text = (document.getElementById('chatbot-input-accepted').value || '').trim();
+      if (!text) return;
+      var wrap = document.querySelector('#accepted .wf-block');
+      var div = document.createElement('div');
+      div.className = 'wf-chat-bubble user';
+      div.textContent = text;
+      wrap.appendChild(div);
+      var bot = document.createElement('div');
+      bot.className = 'wf-chat-bubble system';
+      bot.textContent = 'Thanks. We\'ll get back to you if needed.';
+      wrap.appendChild(bot);
+      document.getElementById('chatbot-input-accepted').value = '';
+    });
+
+    document.getElementById('ai-assistant-fab').addEventListener('click', function() {
+      document.getElementById('ai-assistant-panel').classList.add('open');
+    });
+    document.getElementById('ai-panel-close').addEventListener('click', function() {
+      document.getElementById('ai-assistant-panel').classList.remove('open');
+    });
+    var aiReplies = {
+      'default': 'In the full app, the AI would answer from your job and service knowledge. This is a wireframe demo.'
+    };
+    function addAIMessage(text, who) {
+      var div = document.createElement('div');
+      div.className = 'ai-msg ' + who;
+      div.textContent = text;
+      document.getElementById('ai-messages').appendChild(div);
+      document.getElementById('ai-messages').scrollTop = document.getElementById('ai-messages').scrollHeight;
+    }
+    document.getElementById('ai-send').addEventListener('click', function() {
+      var text = (document.getElementById('ai-input').value || '').trim();
+      if (!text) return;
+      addAIMessage(text, 'user');
+      document.getElementById('ai-input').value = '';
+      addAIMessage(aiReplies['default'], 'bot');
+    });
+    document.getElementById('ai-input').addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') document.getElementById('ai-send').click();
+    });
+  </script>
+</body>
+</html>

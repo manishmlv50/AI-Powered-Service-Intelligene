@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Service Intelligence – Wireframes</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: system-ui, sans-serif; background: #f5f5f5; color: #333; }
+    .app { display: flex; min-height: 100vh; }
+    /* Sidebar */
+    .sidebar { width: 220px; background: #e8e8e8; border-right: 2px solid #999; padding: 1rem 0; flex-shrink: 0; }
+    .sidebar h2 { margin: 0 1rem 0.5rem; font-size: 0.9rem; color: #555; text-transform: uppercase; }
+    .sidebar nav a { display: block; padding: 0.5rem 1rem; color: #333; text-decoration: none; border-left: 3px solid transparent; }
+    .sidebar nav a:hover { background: #ddd; }
+    .sidebar nav a.active { border-left-color: #333; background: #ddd; }
+    .sidebar .divider { height: 1px; background: #999; margin: 0.5rem 1rem; }
+    /* Main content */
+    .main { flex: 1; padding: 1.5rem; overflow: auto; }
+    .screen { display: none; max-width: 900px; margin: 0 auto; }
+    .screen.active { display: block; }
+    /* Wireframe blocks */
+    .wf-header { border: 2px dashed #999; padding: 0.75rem 1rem; margin-bottom: 1rem; background: #fff; }
+    .wf-block { border: 2px dashed #999; padding: 1rem; margin-bottom: 1rem; background: #fff; }
+    .wf-label { font-size: 0.75rem; color: #666; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.5rem; }
+    .wf-placeholder { min-height: 2.5rem; background: #eee; border: 1px solid #ccc; border-radius: 2px; padding: 0.5rem; color: #888; }
+    .wf-placeholder.tall { min-height: 6rem; }
+    .wf-table { width: 100%; border-collapse: collapse; border: 1px solid #999; }
+    .wf-table th, .wf-table td { border: 1px solid #999; padding: 0.5rem; text-align: left; background: #fff; }
+    .wf-table th { background: #e8e8e8; font-size: 0.75rem; color: #555; }
+    .wf-btn { display: inline-block; padding: 0.5rem 1rem; margin-right: 0.5rem; margin-bottom: 0.5rem; border: 2px solid #333; background: #fff; cursor: pointer; font-size: 0.9rem; }
+    .wf-btn.primary { background: #333; color: #fff; }
+    .wf-stat { border: 2px dashed #999; padding: 1rem; text-align: center; background: #fff; display: inline-block; min-width: 140px; margin-right: 1rem; margin-bottom: 1rem; }
+    .wf-stat .value { font-size: 1.5rem; font-weight: bold; }
+    .wf-chat-bubble { max-width: 80%; padding: 0.75rem 1rem; margin-bottom: 0.5rem; border: 2px dashed #999; border-radius: 8px; }
+    .wf-chat-bubble.system { background: #e8e8e8; margin-right: 0; margin-left: auto; }
+    .wf-chat-bubble.user { background: #fff; }
+    .wf-card { border: 2px dashed #999; padding: 1rem; margin: 0.5rem 0; background: #fff; }
+    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; }
+    @media (max-width: 600px) { .grid-3 { grid-template-columns: 1fr; } }
+    /* Flow strip */
+    .flow-strip { display: flex; flex-wrap: wrap; gap: 0.25rem; padding: 0.5rem 0; margin-bottom: 1rem; border-bottom: 2px solid #999; background: #fff; border: 2px dashed #999; border-radius: 4px; }
+    .flow-strip a { padding: 0.35rem 0.6rem; font-size: 0.75rem; color: #666; text-decoration: none; border-radius: 3px; }
+    .flow-strip a:hover { background: #eee; color: #333; }
+    .flow-strip a.current { background: #333; color: #fff; }
+    .flow-back { margin-bottom: 1rem; }
+    .flow-back .wf-btn { font-size: 0.8rem; }
+    .interstitial { text-align: center; padding: 2rem; }
+    .interstitial .wf-btn { margin: 0.5rem; }
+    /* Persona bar */
+    .persona-bar { display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1rem; background: #fff; border: 2px dashed #999; margin-bottom: 1rem; border-radius: 4px; flex-wrap: wrap; }
+    .persona-bar span { font-size: 0.8rem; color: #666; margin-right: 0.5rem; }
+    .persona-bar button { padding: 0.4rem 0.8rem; border: 2px solid #999; background: #fff; cursor: pointer; font-size: 0.8rem; border-radius: 3px; }
+    .persona-bar button.active { background: #333; color: #fff; border-color: #333; }
+    .persona-bar button:hover:not(.active) { background: #eee; }
+    /* AI Assistant - portal */
+    .ai-assistant-fab { position: fixed; bottom: 1.5rem; right: 1.5rem; width: 56px; height: 56px; border-radius: 50%; border: 2px solid #333; background: #333; color: #fff; cursor: pointer; font-size: 1.2rem; z-index: 100; box-shadow: 0 2px 8px rgba(0,0,0,0.2); display: flex; align-items: center; justify-content: center; }
+    .ai-assistant-fab:hover { background: #555; }
+    .ai-assistant-panel { position: fixed; top: 0; right: -360px; width: 340px; height: 100vh; background: #fff; border-left: 2px solid #999; box-shadow: -4px 0 12px rgba(0,0,0,0.1); z-index: 101; transition: right 0.2s ease; overflow: hidden; display: flex; flex-direction: column; }
+    .ai-assistant-panel.open { right: 0; }
+    .ai-assistant-panel .ai-head { padding: 1rem; border-bottom: 1px solid #ddd; font-weight: bold; display: flex; justify-content: space-between; align-items: center; }
+    .ai-assistant-panel .ai-close { background: none; border: none; cursor: pointer; font-size: 1.2rem; }
+    .ai-assistant-panel .ai-desc { font-size: 0.8rem; color: #666; padding: 0 1rem 0.5rem; }
+    .ai-assistant-panel .ai-prompts { padding: 0.5rem 1rem; display: flex; flex-wrap: wrap; gap: 0.5rem; }
+    .ai-assistant-panel .ai-prompts button { padding: 0.35rem 0.6rem; border: 1px solid #999; background: #f9f9f9; cursor: pointer; font-size: 0.75rem; border-radius: 4px; }
+    .ai-assistant-panel .ai-prompts button:hover { background: #eee; }
+    .ai-assistant-panel .ai-messages { flex: 1; overflow-y: auto; padding: 1rem; font-size: 0.85rem; }
+    .ai-assistant-panel .ai-msg { margin-bottom: 0.75rem; padding: 0.5rem 0.75rem; border-radius: 6px; }
+    .ai-assistant-panel .ai-msg.user { background: #e8e8e8; margin-left: 1rem; }
+    .ai-assistant-panel .ai-msg.bot { background: #f0f7ff; border: 1px solid #b8d4ff; }
+    .ai-assistant-panel .ai-input-row { padding: 0.75rem; border-top: 1px solid #ddd; display: flex; gap: 0.5rem; }
+    .ai-assistant-panel .ai-input-row input { flex: 1; padding: 0.5rem; border: 1px solid #999; border-radius: 4px; }
+    .ai-assistant-panel .ai-input-row button { padding: 0.5rem 1rem; border: 2px solid #333; background: #333; color: #fff; cursor: pointer; border-radius: 4px; }
+    .portal-only { display: block; }
+    .customer-only { display: none; }
+    body.persona-customer .portal-only { display: none; }
+    body.persona-customer .customer-only { display: block; }
+    body.persona-customer .main .flow-strip { display: none; }
+    .clickable-row { cursor: pointer; }
+    .clickable-row:hover { background: #f0f0f0 !important; }
+    .filter-chips { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 0.5rem; }
+    .filter-chips button { padding: 0.35rem 0.7rem; border: 1px solid #999; background: #fff; cursor: pointer; font-size: 0.8rem; border-radius: 4px; }
+    .filter-chips button.active { background: #333; color: #fff; border-color: #333; }
+  </style>
+</head>
+<body class="persona-advisor">
+  <!-- Persona selector (MVP: Service Advisor, Workshop Manager, Customer) -->
+  <div class="persona-bar">
+    <span>View as:</span>
+    <button type="button" class="persona-btn active" data-persona="advisor">Service Advisor</button>
+    <button type="button" class="persona-btn" data-persona="manager">Workshop Manager</button>
+    <button type="button" class="persona-btn" data-persona="customer">Customer</button>
+  </div>
+  <div class="app">
+    <aside class="sidebar portal-only">
+      <h2>Portal</h2>
+      <nav>
+        <a href="#dashboard" class="nav-link active" data-screen="dashboard">Dashboard</a>
+        <a href="#new-intake" class="nav-link" data-screen="new-intake">New Intake</a>
+        <a href="#job-card" class="nav-link" data-screen="job-card">Job Card</a>
+        <a href="#estimate" class="nav-link" data-screen="estimate">Generate Estimate</a>
+        <a href="#during-service" class="nav-link" data-screen="during-service">During-Service Update</a>
+        <a href="#job-complete" class="nav-link" data-screen="job-complete">Job Complete</a>
+        <a href="#jobs-list" class="nav-link" data-screen="jobs-list">Jobs List</a>
+        <a href="#tracking" class="nav-link" data-screen="tracking">Tracking (Manager)</a>
+      </nav>
+      <div class="divider"></div>
+      <h2>Customer</h2>
+      <nav>
+        <a href="#chatbot" class="nav-link" data-screen="chatbot">Customer Chatbot</a>
+      </nav>
+      <div class="divider"></div>
+      <p style="font-size: 0.75rem; color: #666; margin: 1rem; padding: 0;">Use <strong>flow buttons</strong> to walk the full journey. <strong>AI Assistant</strong> (bottom-right) is available on every portal screen.</p>
+    </aside>
+    <div class="customer-only" style="padding: 0.5rem 1rem; background: #f0f7ff; border: 1px solid #b8d4ff; margin: 0 1rem 0.5rem; border-radius: 4px; max-width: 600px; margin-left: auto; margin-right: auto;">
+      <p style="margin: 0; font-size: 0.9rem;">Customer view: your <strong>AI Assistant</strong> is the chatbot below — use it for approvals, questions, and service updates.</p>
+    </div>
+    <main class="main">
+      <!-- Flow strip: entire flow at a glance (hidden for Customer persona) -->
+      <div class="flow-strip portal-only" id="flow-strip">
+        <a href="#" class="flow-step" data-screen="dashboard">1. Dashboard</a>
+        <span style="color: #999;">→</span>
+        <a href="#" class="flow-step" data-screen="new-intake">2. New Intake</a>
+        <span style="color: #999;">→</span>
+        <a href="#" class="flow-step" data-screen="job-card">3. Job Card</a>
+        <span style="color: #999;">→</span>
+        <a href="#" class="flow-step" data-screen="estimate">4. Estimate</a>
+        <span style="color: #999;">→</span>
+        <a href="#" class="flow-step" data-screen="estimate-sent">5. Sent</a>
+        <span style="color: #999;">→</span>
+        <a href="#" class="flow-step" data-screen="chatbot">6. Customer Chat</a>
+        <span style="color: #999;">→</span>
+        <a href="#" class="flow-step" data-screen="during-service">7. During-Service</a>
+        <span style="color: #999;">→</span>
+        <a href="#" class="flow-step" data-screen="job-complete">8. Complete</a>
+        <span style="color: #999;">→</span>
+        <a href="#" class="flow-step" data-screen="flow-complete">9. Done</a>
+      </div>
+      <!-- Dashboard -->
+      <section id="dashboard" class="screen active">
+        <div class="wf-header">Service Intelligence — <span id="header-persona">Service Advisor</span> [Logout]</div>
+        <div class="wf-label">Stats</div>
+        <div class="grid-3">
+          <div class="wf-stat"><div class="value">12</div>Open jobs</div>
+          <div class="wf-stat"><div class="value">3</div>Pending approval</div>
+          <div class="wf-stat"><div class="value">5</div>Completed today</div>
+        </div>
+        <div class="wf-block">
+          <button class="wf-btn primary" data-flow-next="new-intake">New Intake</button>
+          <span style="font-size: 0.8rem; color: #666;"> ← Start full flow here</span>
+        </div>
+        <div class="wf-label">Recent / Open jobs — click a row to open</div>
+        <div class="wf-block">
+          <table class="wf-table">
+            <thead><tr><th>Job ID</th><th>Customer</th><th>Vehicle</th><th>Status</th><th>Last updated</th></tr></thead>
+            <tbody>
+              <tr class="clickable-row" data-goto="estimate"><td>JC-001</td><td>John Doe</td><td>Honda Civic 2022</td><td>Pending approval</td><td>2 min ago</td></tr>
+              <tr class="clickable-row" data-goto="during-service"><td>JC-002</td><td>Jane Smith</td><td>Toyota Camry 2021</td><td>In progress</td><td>1 hr ago</td></tr>
+              <tr class="clickable-row" data-goto="job-card"><td>JC-003</td><td>Bob Wilson</td><td>Ford F-150 2023</td><td>Draft</td><td>5 min ago</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- New Intake -->
+      <section id="new-intake" class="screen">
+        <div class="wf-header">Service Intelligence — New Intake</div>
+        <div class="flow-back"><button class="wf-btn" data-flow-prev>← Back</button></div>
+        <div class="wf-block">
+          <div class="wf-label">Customer complaint / notes</div>
+          <div class="wf-placeholder tall">[Large text area — or Speech-to-Text placeholder]</div>
+          <div style="margin-top: 0.5rem;">
+            <button class="wf-btn">Record</button>
+            <button class="wf-btn">Upload OBD</button>
+          </div>
+        </div>
+        <div class="wf-block">
+          <div class="wf-label">Upload OBD report (PDF or TXT)</div>
+          <div class="wf-placeholder tall">[Drop zone or file picker]</div>
+        </div>
+        <div class="wf-block">
+          <button class="wf-btn primary" data-flow-next="job-card">Generate job card with AI</button>
+        </div>
+      </section>
+
+      <!-- Job Card -->
+      <section id="job-card" class="screen">
+        <div class="wf-header">Service Intelligence — Job Card</div>
+        <div class="flow-back"><button class="wf-btn" data-flow-prev>← Back</button></div>
+        <div class="wf-block">
+          <div class="wf-label">Customer & Vehicle</div>
+          <div class="wf-placeholder" style="margin-bottom: 0.5rem;">Customer name</div>
+          <div class="wf-placeholder" style="margin-bottom: 0.5rem;">Vehicle: Make, Model, Year | VIN (optional)</div>
+          <div class="wf-placeholder">Mileage</div>
+        </div>
+        <div class="wf-block">
+          <div class="wf-label">Complaint & Service type</div>
+          <div class="wf-placeholder tall" style="margin-bottom: 0.5rem;">Complaint (free text)</div>
+          <div class="wf-placeholder">Service type: [maintenance | repair | inspection | diagnostic]</div>
+        </div>
+        <div class="wf-block">
+          <div class="wf-label">Risk indicators</div>
+          <div class="wf-placeholder">[Tags: e.g. safety, emission]</div>
+        </div>
+        <div class="wf-block">
+          <div class="wf-label">OBD fault codes (from upload)</div>
+          <div class="wf-placeholder">e.g. P0300, P0420</div>
+        </div>
+        <div class="wf-block">
+          <span class="wf-label">Status: </span> Draft
+          <div style="margin-top: 1rem;">
+            <button class="wf-btn">Save</button>
+            <button class="wf-btn primary" data-flow-next="estimate">Generate Estimate</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Generate Estimate -->
+      <section id="estimate" class="screen">
+        <div class="wf-header">Service Intelligence — Quote</div>
+        <div class="flow-back"><button class="wf-btn" data-flow-prev>← Back</button></div>
+        <div class="wf-block">
+          <div class="wf-label">Line items</div>
+          <table class="wf-table">
+            <thead><tr><th>Description</th><th>Qty</th><th>Unit price</th><th>Total</th><th>Insurance</th></tr></thead>
+            <tbody>
+              <tr><td>Brake Pad Set - Front</td><td>1</td><td>89.99</td><td>89.99</td><td>No</td></tr>
+              <tr><td>Brake pad replacement (labor)</td><td>1.5 hrs</td><td>120.00</td><td>180.00</td><td>No</td></tr>
+            </tbody>
+          </table>
+          <div style="margin-top: 1rem; text-align: right;">
+            <div>Subtotal: 269.99</div>
+            <div>Customer payable: 269.99 | Insurance: 0.00</div>
+            <div><strong>Total: 269.99</strong></div>
+          </div>
+        </div>
+        <div class="wf-block">
+          <button class="wf-btn">Regenerate</button>
+          <button class="wf-btn">Download PDF</button>
+          <button class="wf-btn primary" data-flow-next="estimate-sent">Send for Approval</button>
+        </div>
+      </section>
+
+      <!-- Estimate sent (interstitial) -->
+      <section id="estimate-sent" class="screen">
+        <div class="wf-header">Service Intelligence — Estimate sent</div>
+        <div class="flow-back"><button class="wf-btn" data-flow-prev>← Back</button></div>
+        <div class="wf-block interstitial">
+          <p><strong>Estimate sent to customer.</strong> They will receive a notification in the chatbot.</p>
+          <button class="wf-btn primary" data-flow-next="chatbot">View as customer (open chatbot)</button>
+        </div>
+      </section>
+
+      <!-- During-Service Update -->
+      <section id="during-service" class="screen">
+        <div class="wf-header">Service Intelligence — During-Service Update</div>
+        <div class="flow-back"><button class="wf-btn" data-flow-prev>← Back</button></div>
+        <div class="wf-block">
+          <div class="wf-label">Additional issue / notes</div>
+          <div class="wf-placeholder tall">[Add line items or notes]</div>
+          <button class="wf-btn primary">Recalculate estimate</button>
+        </div>
+        <div class="wf-block">
+          <div class="wf-label">Revised quote (same layout as Generate Estimate)</div>
+          <div class="wf-placeholder tall">[Line items + Totals]</div>
+          <button class="wf-btn primary">Send revised estimate to customer</button>
+        </div>
+        <div class="wf-block">
+          <div class="wf-label">ETA / Risk</div>
+          <div class="wf-placeholder">Estimated completion: [date/time] — Risk: delay possible</div>
+        </div>
+        <div class="wf-block">
+          <button class="wf-btn primary" data-flow-next="job-complete">Continue → Mark job complete</button>
+        </div>
+      </section>
+
+      <!-- Job Complete -->
+      <section id="job-complete" class="screen">
+        <div class="wf-header">Service Intelligence — Job Complete</div>
+        <div class="flow-back"><button class="wf-btn" data-flow-prev>← Back</button></div>
+        <div class="wf-block">
+          <div class="wf-label">Status</div>
+          <div class="wf-placeholder">Completed / Closed</div>
+          <button class="wf-btn primary" data-flow-next="flow-complete">Mark complete and notify customer</button>
+        </div>
+        <div class="wf-block">
+          <div class="wf-label">Summary (optional)</div>
+          <div class="wf-placeholder">Total amount, payment status, pickup/delivery</div>
+        </div>
+      </section>
+
+      <!-- Flow complete -->
+      <section id="flow-complete" class="screen">
+        <div class="wf-header">Service Intelligence — Flow complete</div>
+        <div class="wf-block interstitial">
+          <p><strong>End-to-end flow complete.</strong> Customer has been notified; job is closed.</p>
+          <button class="wf-btn primary" data-flow-next="dashboard">Start over (back to Dashboard)</button>
+        </div>
+      </section>
+
+      <!-- Jobs List -->
+      <section id="jobs-list" class="screen">
+        <div class="wf-header">Service Intelligence — Jobs</div>
+        <div class="wf-block">
+          <div class="wf-label">Filters — click to filter</div>
+          <div class="filter-chips">
+            <button type="button" class="filter-chip active" data-filter="all">All</button>
+            <button type="button" class="filter-chip" data-filter="draft">Draft</button>
+            <button type="button" class="filter-chip" data-filter="pending_approval">Pending approval</button>
+            <button type="button" class="filter-chip" data-filter="in_progress">In progress</button>
+            <button type="button" class="filter-chip" data-filter="completed">Completed</button>
+          </div>
+        </div>
+        <div class="wf-block">
+          <div class="wf-label">Click row to open Job Card</div>
+          <table class="wf-table">
+            <thead><tr><th>Job ID</th><th>Customer</th><th>Vehicle</th><th>Status</th><th>Created</th><th>Actions</th></tr></thead>
+            <tbody>
+              <tr class="clickable-row" data-goto="job-card"><td>JC-001</td><td>John Doe</td><td>Honda Civic 2022</td><td>Pending approval</td><td>Today</td><td><button type="button" class="wf-btn" style="margin:0;padding:0.2rem 0.5rem;font-size:0.8rem" data-goto="job-card">View</button> <button type="button" class="wf-btn" style="margin:0;padding:0.2rem 0.5rem;font-size:0.8rem" data-goto="job-card">Edit</button></td></tr>
+              <tr class="clickable-row" data-goto="job-card"><td>JC-002</td><td>Jane Smith</td><td>Toyota Camry 2021</td><td>In progress</td><td>Yesterday</td><td><button type="button" class="wf-btn" style="margin:0;padding:0.2rem 0.5rem;font-size:0.8rem" data-goto="job-card">View</button> <button type="button" class="wf-btn" style="margin:0;padding:0.2rem 0.5rem;font-size:0.8rem" data-goto="job-card">Edit</button></td></tr>
+              <tr class="clickable-row" data-goto="job-card"><td>JC-003</td><td>Bob Wilson</td><td>Ford F-150 2023</td><td>Draft</td><td>Today</td><td><button type="button" class="wf-btn" style="margin:0;padding:0.2rem 0.5rem;font-size:0.8rem" data-goto="job-card">View</button> <button type="button" class="wf-btn" style="margin:0;padding:0.2rem 0.5rem;font-size:0.8rem" data-goto="job-card">Edit</button></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Customer Chatbot (Customer's AI Assistant) -->
+      <section id="chatbot" class="screen">
+        <div class="wf-header">Service Center — Customer: AI Assistant (Chatbot)</div>
+        <div class="flow-back portal-only"><button class="wf-btn" data-flow-prev>← Back</button></div>
+        <div class="wf-block">
+          <div class="wf-label">Chat with AI — approvals, questions, updates</div>
+          <div id="chatbot-messages">
+            <div class="wf-chat-bubble system">
+              Your estimate is ready. Total: $269.99. Please review and approve or reject.
+            </div>
+            <div class="wf-card">
+              <div class="wf-label">Estimate summary</div>
+              <div>Total: $269.99 | Customer payable: $269.99</div>
+              <button class="wf-btn">View full estimate</button>
+              <button class="wf-btn primary" data-flow-next="during-service">Approve</button>
+              <button class="wf-btn">Reject</button>
+            </div>
+            <div class="wf-chat-bubble user">Why is brake pad replacement needed?</div>
+            <div class="wf-chat-bubble system">Based on the OBD codes and mileage, the front brake pads are worn below spec. Replacing them restores safe braking distance.</div>
+          </div>
+        </div>
+        <div class="wf-block">
+          <div class="wf-label">Ask the AI — type and press Send</div>
+          <div style="display: flex; gap: 0.5rem;">
+            <input type="text" id="chatbot-input" style="flex:1;padding:0.5rem;border:1px solid #999;border-radius:4px;min-height:2.5rem" placeholder="Type your message..." />
+            <button type="button" class="wf-btn primary" id="chatbot-send">Send</button>
+          </div>
+        </div>
+        <div class="wf-block portal-only">
+          <button class="wf-btn" data-flow-next="during-service">Skip to During-Service (advisor finds more work)</button>
+        </div>
+      </section>
+
+      <!-- Tracking (Workshop Manager) -->
+      <section id="tracking" class="screen">
+        <div class="wf-header">Service Intelligence — Tracking (Workshop Manager)</div>
+        <div class="wf-block">
+          <div class="wf-label">Overview</div>
+          <div class="grid-3">
+            <div class="wf-stat"><div class="value">8</div>In progress</div>
+            <div class="wf-stat"><div class="value">2</div>At risk (ETA)</div>
+            <div class="wf-stat"><div class="value">4</div>Pending parts</div>
+          </div>
+        </div>
+        <div class="wf-block">
+          <div class="wf-label">Jobs by status — click row to open</div>
+          <table class="wf-table">
+            <thead><tr><th>Job ID</th><th>Customer</th><th>Vehicle</th><th>Status</th><th>ETA</th><th>Risk</th></tr></thead>
+            <tbody>
+              <tr class="clickable-row" data-goto="job-card"><td>JC-001</td><td>John Doe</td><td>Honda Civic 2022</td><td>Pending approval</td><td>Today 5pm</td><td>—</td></tr>
+              <tr class="clickable-row" data-goto="during-service"><td>JC-002</td><td>Jane Smith</td><td>Toyota Camry 2021</td><td>In progress</td><td>Tomorrow 10am</td><td>Possible delay</td></tr>
+              <tr class="clickable-row" data-goto="job-card"><td>JC-003</td><td>Bob Wilson</td><td>Ford F-150 2023</td><td>In progress</td><td>Today 3pm</td><td>—</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="wf-block">
+          <p class="wf-label">Use the <strong>AI Assistant</strong> (bottom-right) to ask e.g. &ldquo;Which jobs are at risk?&rdquo; or &ldquo;Why is JC-002 delayed?&rdquo;</p>
+        </div>
+      </section>
+    </main>
+
+    <!-- AI Assistant (Portal: Service Advisor & Workshop Manager) -->
+    <div id="ai-assistant-panel" class="ai-assistant-panel portal-only">
+      <div class="ai-head">AI Assistant <button type="button" class="ai-close" id="ai-panel-close" aria-label="Close">×</button></div>
+      <div class="ai-desc">Service Advisor Co-Pilot. Ask about jobs, estimates, fault codes (e.g. P0300), or next steps.</div>
+      <div class="ai-prompts">
+        <button type="button" class="ai-quick-prompt" data-query="What does fault code P0300 mean?">Explain P0300</button>
+        <button type="button" class="ai-quick-prompt" data-query="Why is this estimate $269.99?">Why this estimate?</button>
+        <button type="button" class="ai-quick-prompt" data-query="Any delay risk for this job?">Delay risk?</button>
+        <button type="button" class="ai-quick-prompt" data-query="What should I do next for JC-001?">What's next?</button>
+      </div>
+      <div class="ai-messages" id="ai-messages">
+        <div class="ai-msg bot">Ask anything about the current job, estimates, or workshop status. I can explain fault codes, suggest next steps, or summarize risk.</div>
+      </div>
+      <div class="ai-input-row">
+        <input type="text" id="ai-input" placeholder="Ask the AI..." />
+        <button type="button" id="ai-send">Send</button>
+      </div>
+    </div>
+    <button type="button" class="ai-assistant-fab portal-only" id="ai-assistant-fab" aria-label="Open AI Assistant">AI</button>
+  </div>
+  <script>
+    var flowOrder = ['dashboard','new-intake','job-card','estimate','estimate-sent','chatbot','during-service','job-complete','flow-complete'];
+    var aiSampleReplies = {
+      'default': 'In the full app, the AI would use the Orchestrator and specialist agents (Intake, Estimation, Communication, ETA Risk) to answer. This is a wireframe demo.',
+      'What does fault code P0300 mean?': 'P0300 indicates random/multiple cylinder misfire detected. Common causes include spark plugs, ignition coils, or fuel delivery. The Estimation Agent can map this to recommended parts and labor.',
+      'Why is this estimate $269.99?': 'The quote includes Brake Pad Set - Front ($89.99) and brake pad replacement labor (1.5 hrs × $120/hr = $180). Insurance rules applied: no coverage for this job, so customer pays 100%.',
+      'Any delay risk for this job?': 'ETA/Risk Agent: Current ETA is on track. If parts are in stock, no delay. If additional work is found during service, the system will recalculate and notify the customer.',
+      "What should I do next for JC-001?": "JC-001 is pending approval. Next: wait for customer to approve in the chatbot, or send a reminder. Once approved, status moves to In progress and you can track completion."
+    };
+    var chatbotSampleReplies = [
+      'Thanks for asking. In the live app, the Communication Agent would answer using RAG knowledge. For this wireframe, I\'m your AI assistant for approvals and service updates.',
+      'I can help you approve or reject the estimate, or explain any line item. Try "Approve" above or ask another question.',
+      'Your vehicle is in good hands. You\'ll get a notification when the job is complete.'
+    ];
+
+    function showScreen(screenId) {
+      document.querySelectorAll('.screen').forEach(function(s) { s.classList.remove('active'); });
+      document.querySelectorAll('.nav-link').forEach(function(l) { l.classList.remove('active'); });
+      var target = document.getElementById(screenId);
+      if (target) target.classList.add('active');
+      var navLink = document.querySelector('.nav-link[data-screen="' + screenId + '"]');
+      if (navLink) navLink.classList.add('active');
+      document.querySelectorAll('.flow-step').forEach(function(a) {
+        a.classList.toggle('current', a.getAttribute('data-screen') === screenId);
+      });
+    }
+
+    function setPersona(persona) {
+      document.body.classList.remove('persona-advisor', 'persona-manager', 'persona-customer');
+      document.body.classList.add('persona-' + persona);
+      document.querySelectorAll('.persona-btn').forEach(function(b) {
+        b.classList.toggle('active', b.getAttribute('data-persona') === persona);
+      });
+      var header = document.getElementById('header-persona');
+      if (header) {
+        if (persona === 'advisor') header.textContent = 'Service Advisor';
+        else if (persona === 'manager') header.textContent = 'Workshop Manager';
+      }
+      if (persona === 'customer') showScreen('chatbot');
+      else if (persona === 'manager') showScreen('tracking');
+      else showScreen('dashboard');
+    }
+
+    document.querySelectorAll('.persona-btn').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        setPersona(btn.getAttribute('data-persona'));
+      });
+    });
+
+    document.querySelectorAll('.nav-link').forEach(function(link) {
+      link.addEventListener('click', function(e) {
+        e.preventDefault();
+        showScreen(link.getAttribute('data-screen'));
+      });
+    });
+
+    document.querySelectorAll('.flow-step').forEach(function(a) {
+      a.addEventListener('click', function(e) {
+        e.preventDefault();
+        showScreen(a.getAttribute('data-screen'));
+      });
+    });
+
+    document.querySelectorAll('[data-flow-next]').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        var next = btn.getAttribute('data-flow-next');
+        if (next) showScreen(next);
+      });
+    });
+
+    document.querySelectorAll('[data-flow-prev]').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        var current = document.querySelector('.screen.active');
+        if (!current) return;
+        var i = flowOrder.indexOf(current.id);
+        if (i > 0) showScreen(flowOrder[i - 1]);
+      });
+    });
+
+    // Clickable table rows and buttons with data-goto
+    document.querySelectorAll('.clickable-row, [data-goto]').forEach(function(el) {
+      if (!el.getAttribute('data-goto')) return;
+      el.addEventListener('click', function(e) {
+        if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+        var goto = el.getAttribute('data-goto');
+        if (goto) { e.preventDefault(); e.stopPropagation(); showScreen(goto); }
+      });
+    });
+
+    // Filter chips (Jobs list)
+    document.querySelectorAll('.filter-chip').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        document.querySelectorAll('.filter-chip').forEach(function(b) { b.classList.remove('active'); });
+        btn.classList.add('active');
+      });
+    });
+
+    // AI Assistant (portal)
+    var aiPanel = document.getElementById('ai-assistant-panel');
+    var aiMessages = document.getElementById('ai-messages');
+    var aiInput = document.getElementById('ai-input');
+    document.getElementById('ai-assistant-fab').addEventListener('click', function() {
+      aiPanel.classList.add('open');
+    });
+    document.getElementById('ai-panel-close').addEventListener('click', function() {
+      aiPanel.classList.remove('open');
+    });
+    function addAIMessage(text, who) {
+      var div = document.createElement('div');
+      div.className = 'ai-msg ' + who;
+      div.textContent = text;
+      aiMessages.appendChild(div);
+      aiMessages.scrollTop = aiMessages.scrollHeight;
+    }
+    document.querySelectorAll('.ai-quick-prompt').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        var q = btn.getAttribute('data-query');
+        addAIMessage(q, 'user');
+        var reply = aiSampleReplies[q] || aiSampleReplies['default'];
+        addAIMessage(reply, 'bot');
+      });
+    });
+    document.getElementById('ai-send').addEventListener('click', function() {
+      var text = (aiInput.value || '').trim();
+      if (!text) return;
+      addAIMessage(text, 'user');
+      aiInput.value = '';
+      var reply = aiSampleReplies[text] || aiSampleReplies['default'];
+      addAIMessage(reply, 'bot');
+    });
+    aiInput.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') document.getElementById('ai-send').click();
+    });
+
+    // Customer Chatbot: send message and add simulated AI reply
+    var chatbotMessages = document.getElementById('chatbot-messages');
+    var chatbotInput = document.getElementById('chatbot-input');
+    var chatbotReplyIndex = 0;
+    document.getElementById('chatbot-send').addEventListener('click', function() {
+      var text = (chatbotInput.value || '').trim();
+      if (!text) return;
+      var userBubble = document.createElement('div');
+      userBubble.className = 'wf-chat-bubble user';
+      userBubble.textContent = text;
+      chatbotMessages.appendChild(userBubble);
+      chatbotInput.value = '';
+      var reply = chatbotSampleReplies[chatbotReplyIndex % chatbotSampleReplies.length];
+      chatbotReplyIndex++;
+      var botBubble = document.createElement('div');
+      botBubble.className = 'wf-chat-bubble system';
+      botBubble.textContent = reply;
+      chatbotMessages.appendChild(botBubble);
+      chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
+    });
+    chatbotInput.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') document.getElementById('chatbot-send').click();
+    });
+
+    showScreen('dashboard');
+  </script>
+</body>
+</html>

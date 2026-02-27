@@ -1,0 +1,142 @@
+[
+    {
+        "id": "P001",
+        "name": "Engine Oil 5W30",
+        "category": "engine",
+        "unit_price": 850,
+        "stock_qty": 100
+    },
+    {
+        "id": "P002",
+        "name": "Oil Filter",
+        "category": "engine",
+        "unit_price": 250,
+        "stock_qty": 200
+    },
+    {
+        "id": "P003",
+        "name": "Air Filter",
+        "category": "engine",
+        "unit_price": 450,
+        "stock_qty": 150
+    },
+    {
+        "id": "P004",
+        "name": "Brake Pad Set Front",
+        "category": "brakes",
+        "unit_price": 3200,
+        "stock_qty": 80
+    },
+    {
+        "id": "P005",
+        "name": "Brake Disc",
+        "category": "brakes",
+        "unit_price": 4200,
+        "stock_qty": 40
+    },
+    {
+        "id": "P006",
+        "name": "Battery 12V",
+        "category": "electrical",
+        "unit_price": 5500,
+        "stock_qty": 35
+    },
+    {
+        "id": "P007",
+        "name": "Alternator",
+        "category": "electrical",
+        "unit_price": 7200,
+        "stock_qty": 20
+    },
+    {
+        "id": "P008",
+        "name": "Clutch Kit",
+        "category": "transmission",
+        "unit_price": 6800,
+        "stock_qty": 25
+    },
+    {
+        "id": "P009",
+        "name": "Spark Plug",
+        "category": "engine",
+        "unit_price": 300,
+        "stock_qty": 300
+    },
+    {
+        "id": "P010",
+        "name": "Radiator",
+        "category": "cooling",
+        "unit_price": 6400,
+        "stock_qty": 15
+    },
+    {
+        "id": "P011",
+        "name": "AC Compressor",
+        "category": "ac",
+        "unit_price": 12500,
+        "stock_qty": 10
+    },
+    {
+        "id": "P012",
+        "name": "Fuel Pump",
+        "category": "fuel",
+        "unit_price": 4800,
+        "stock_qty": 30
+    },
+    {
+        "id": "P013",
+        "name": "Timing Belt",
+        "category": "engine",
+        "unit_price": 3500,
+        "stock_qty": 40
+    },
+    {
+        "id": "P014",
+        "name": "Headlight Assembly",
+        "category": "electrical",
+        "unit_price": 3900,
+        "stock_qty": 22
+    },
+    {
+        "id": "P015",
+        "name": "Shock Absorber",
+        "category": "suspension",
+        "unit_price": 4100,
+        "stock_qty": 28
+    },
+    {
+        "id": "P016",
+        "name": "Wiper Blade Set",
+        "category": "body",
+        "unit_price": 650,
+        "stock_qty": 120
+    },
+    {
+        "id": "P017",
+        "name": "Throttle Body",
+        "category": "engine",
+        "unit_price": 8700,
+        "stock_qty": 12
+    },
+    {
+        "id": "P018",
+        "name": "EGR Valve",
+        "category": "engine",
+        "unit_price": 5600,
+        "stock_qty": 18
+    },
+    {
+        "id": "P019",
+        "name": "Wheel Bearing",
+        "category": "suspension",
+        "unit_price": 2100,
+        "stock_qty": 50
+    },
+    {
+        "id": "P020",
+        "name": "Coolant 1L",
+        "category": "cooling",
+        "unit_price": 350,
+        "stock_qty": 200
+    }
+]

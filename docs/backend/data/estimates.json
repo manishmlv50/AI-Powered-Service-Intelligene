@@ -1,0 +1,182 @@
+[
+    {
+        "id": "E001",
+        "job_card_id": "J001",
+        "parts_total": 1550,
+        "labor_total": 1600,
+        "tax": 567,
+        "grand_total": 3717,
+        "status": "pending"
+    },
+    {
+        "id": "E002",
+        "job_card_id": "J002",
+        "parts_total": 3200,
+        "labor_total": 1800,
+        "tax": 900,
+        "grand_total": 5900,
+        "status": "approved"
+    },
+    {
+        "id": "E003",
+        "job_card_id": "J003",
+        "parts_total": 5500,
+        "labor_total": 700,
+        "tax": 1116,
+        "grand_total": 7316,
+        "status": "approved"
+    },
+    {
+        "id": "E004",
+        "job_card_id": "J004",
+        "parts_total": 6800,
+        "labor_total": 6000,
+        "tax": 2304,
+        "grand_total": 15104,
+        "status": "pending"
+    },
+    {
+        "id": "E005",
+        "job_card_id": "J005",
+        "parts_total": 12500,
+        "labor_total": 3300,
+        "tax": 2856,
+        "grand_total": 18656,
+        "status": "pending"
+    },
+    {
+        "id": "E006",
+        "job_card_id": "J006",
+        "parts_total": 6400,
+        "labor_total": 3000,
+        "tax": 1692,
+        "grand_total": 11092,
+        "status": "approved"
+    },
+    {
+        "id": "E007",
+        "job_card_id": "J007",
+        "parts_total": 4800,
+        "labor_total": 3000,
+        "tax": 1404,
+        "grand_total": 9204,
+        "status": "approved"
+    },
+    {
+        "id": "E008",
+        "job_card_id": "J008",
+        "parts_total": 1550,
+        "labor_total": 1600,
+        "tax": 567,
+        "grand_total": 3717,
+        "status": "pending"
+    },
+    {
+        "id": "E009",
+        "job_card_id": "J009",
+        "parts_total": 4100,
+        "labor_total": 3000,
+        "tax": 1278,
+        "grand_total": 8378,
+        "status": "approved"
+    },
+    {
+        "id": "E010",
+        "job_card_id": "J010",
+        "parts_total": 3900,
+        "labor_total": 600,
+        "tax": 810,
+        "grand_total": 5310,
+        "status": "pending"
+    },
+    {
+        "id": "E011",
+        "job_card_id": "J011",
+        "parts_total": 1200,
+        "labor_total": 1700,
+        "tax": 522,
+        "grand_total": 3422,
+        "status": "approved"
+    },
+    {
+        "id": "E012",
+        "job_card_id": "J012",
+        "parts_total": 2100,
+        "labor_total": 1800,
+        "tax": 702,
+        "grand_total": 4602,
+        "status": "pending"
+    },
+    {
+        "id": "E013",
+        "job_card_id": "J013",
+        "parts_total": 3500,
+        "labor_total": 4400,
+        "tax": 1416,
+        "grand_total": 9316,
+        "status": "pending"
+    },
+    {
+        "id": "E014",
+        "job_card_id": "J014",
+        "parts_total": 12500,
+        "labor_total": 3300,
+        "tax": 2856,
+        "grand_total": 18656,
+        "status": "approved"
+    },
+    {
+        "id": "E015",
+        "job_card_id": "J015",
+        "parts_total": 6400,
+        "labor_total": 3000,
+        "tax": 1692,
+        "grand_total": 11092,
+        "status": "approved"
+    },
+    {
+        "id": "E016",
+        "job_card_id": "J016",
+        "parts_total": 7200,
+        "labor_total": 1900,
+        "tax": 1638,
+        "grand_total": 10738,
+        "status": "pending"
+    },
+    {
+        "id": "E017",
+        "job_card_id": "J017",
+        "parts_total": 8700,
+        "labor_total": 1700,
+        "tax": 1872,
+        "grand_total": 12272,
+        "status": "approved"
+    },
+    {
+        "id": "E018",
+        "job_card_id": "J018",
+        "parts_total": 4200,
+        "labor_total": 2850,
+        "tax": 1269,
+        "grand_total": 8319,
+        "status": "pending"
+    },
+    {
+        "id": "E019",
+        "job_card_id": "J019",
+        "parts_total": 350,
+        "labor_total": 1800,
+        "tax": 387,
+        "grand_total": 2537,
+        "status": "approved"
+    },
+    {
+        "id": "E020",
+        "job_card_id": "J020",
+        "parts_total": 0,
+        "labor_total": 4400,
+        "tax": 792,
+        "grand_total": 5192,
+        "status": "pending"
+    }
+]
