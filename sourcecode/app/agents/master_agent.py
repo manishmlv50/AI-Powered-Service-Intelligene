@@ -6,6 +6,7 @@ from typing import Optional
 from pydantic import BaseModel
 
 from app.agents.client import get_responses_client
+from app.agents.communication_agent import communication_tool
 from app.agents.intake_agent import intake_tool
 from app.agents.estimator_agent import estimator_tool
 
@@ -17,12 +18,6 @@ class EstimateResponse(BaseModel):
     notes: Optional[str] = None
 
 
-class CommunicationResponse(BaseModel):
-    agent: str
-    message: str
-    tone: str
-
-
 class ETAResponse(BaseModel):
     agent: str
     eta: str
@@ -30,19 +25,6 @@ class ETAResponse(BaseModel):
 
 
 _client = get_responses_client()
-
-communication_agent = _client.as_agent(
-    name="communication_agent",
-    instructions=(
-        "Generate customer-friendly communication.\n\n"
-        "Return ONLY JSON:\n\n"
-        "{\n"
-        "  \"agent\":\"communication_agent\",\n"
-        "  \"message\":\"...\",\n"
-        "  \"tone\":\"professional\"\n"
-        "}"
-    ),
-)
 
 eta_agent = _client.as_agent(
     name="eta_agent",
@@ -65,12 +47,6 @@ async def _collect_json(agent, user_input: str) -> str:
             full += event.text
     return full.strip()
 
-async def communication_tool(user_input: str) -> str:
-    raw = await _collect_json(communication_agent, user_input)
-    model = CommunicationResponse.model_validate_json(raw)
-    return model.model_dump_json()
-
-
 async def eta_tool(user_input: str) -> str:
     raw = await _collect_json(eta_agent, user_input)
     model = ETAResponse.model_validate_json(raw)
@@ -92,16 +68,16 @@ master_agent = _client.as_agent(
 
         "ACTION VALUE         → TOOL TO CALL\n"
         "─────────────────────────────────────\n"
-        "intake               → intake_tool\n"
-        "estimator | estimate → estimator_tool\n"
-        "communication        → communication_tool\n"
-        "eta                  → eta_tool\n\n"
+        "intake                      → intake_tool\n"
+        "estimator | estimate        → estimator_tool\n"
+        "communication | chat        → communication_tool\n"
+        "eta                         → eta_tool\n\n"
 
         "FALLBACK (only when action is missing or empty):\n"
         "- Input contains vehicle_id AND (customer_complaint OR obd_report_text) → intake_tool\n"
         "- Input contains job_card or obd_codes with cost/parts context          → estimator_tool\n"
         "- Input asks about scheduling, timing, or delivery date                 → eta_tool\n"
-        "- Input requests a message, notification, or approval text              → communication_tool\n"
+        "- Input contains customer_id AND job_card_id AND vehicle_id AND question               → communication_tool\n"
         "- If STILL ambiguous                                                    → intake_tool  (safe default)\n\n"
 
         "═══════════════════════════════════\n"

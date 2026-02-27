@@ -171,6 +171,10 @@ def _split_csv(v) -> list:
 
 def _map_job(row: dict) -> dict:
     """Map v2 Job_Cards row → internal dict (camelCase for FE compatibility)."""
+    status_raw = row.get("status", "draft")
+    status = status_raw
+    if isinstance(status_raw, str):
+        status = status_raw.strip().lower()
     tasks_raw = row.get("tasks")
     payload_raw = row.get("intake_payload_json")
     tasks = [t.strip() for t in str(tasks_raw or "").splitlines() if t and t.strip()]
@@ -184,7 +188,7 @@ def _map_job(row: dict) -> dict:
     return {
         "id":             row.get("id", ""),
         "createdAt":      str(row.get("created_at", "")),
-        "status":         row.get("status", "draft"),
+        "status":         status,
         "customerName":   row.get("customer_name"),
         "customerId":     row.get("customer_id"),
         "vehicleMake":    row.get("vehicle_make"),
@@ -298,6 +302,16 @@ def get_job_card(job_id: str) -> Optional[dict]:
         return _map_job(rows[0]) if rows else None
     if _use_json_fallback():
         return next((j for j in _json("job_cards", "job_cards.json") if j["id"] == job_id), None)
+    return None
+def get_job_card_for_customer(job_id: str, customer_id: str) -> Optional[dict]:
+    jc = get_job_card(job_id)
+    if not jc:
+        return None
+
+    normalized_customer_id = str(customer_id or "").strip().lower()
+    jc_customer_id = str(jc.get("customerId") or jc.get("customer_id") or "").strip().lower()
+    if normalized_customer_id and jc_customer_id == normalized_customer_id:
+        return jc
     return None
 
 def create_job_card(data: dict) -> dict:
@@ -425,6 +439,11 @@ def get_estimate_by_job(job_card_id: str) -> Optional[dict]:
             est["lineItems"] = [li for li in _json("eli", "estimate_line_item.json") if li.get("estimate_id") == est.get("id")]
         return est
     return None
+def get_estimate_by_job_for_customer(job_card_id: str, customer_id: str) -> Optional[dict]:
+    jc = get_job_card_for_customer(job_card_id, customer_id)
+    if not jc:
+        return None
+    return get_estimate_by_job(job_card_id)
 
 def get_estimate(estimate_id: str) -> Optional[dict]:
     if _db_available():
@@ -639,8 +658,26 @@ def get_customer_history(customer_id: str) -> list[dict]:
         if not cust:
             return []
         name = cust.get("name", "")
-        return [j for j in _json("job_cards", "job_cards.json") if j.get("customerName") == name]
+        jobs = [j for j in _json("job_cards", "job_cards.json") if j.get("customerName") == name]
+        return sorted(jobs, key=lambda j: j.get("createdAt", ""), reverse=True)
     return []
+
+def get_latest_job_card(customer_id: str) -> Optional[dict]:
+    if _db_available():
+        rows = _sql_rows(
+            "SELECT TOP 1 * FROM Job_Cards WHERE customer_id = ? ORDER BY created_at DESC",
+            (customer_id,),
+        )
+        return _map_job(rows[0]) if rows else None
+    if _use_json_fallback():
+        cust = get_customer(customer_id)
+        if not cust:
+            return None
+        name = cust.get("name", "")
+        jobs = [j for j in _json("job_cards", "job_cards.json") if j.get("customerName") == name]
+        jobs = sorted(jobs, key=lambda j: j.get("createdAt", ""), reverse=True)
+        return jobs[0] if jobs else None
+    return None
 
 # ─── Dashboard ────────────────────────────────────────────────────────────────
 

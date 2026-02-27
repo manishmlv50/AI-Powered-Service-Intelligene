@@ -28,12 +28,51 @@ def _map_jc(jc: dict) -> dict:
         "created_at":    jc.get("createdAt", ""),
         "status":        jc.get("status"),
         "customer_id":   jc.get("customerId") or jc.get("customer_id"),
+        "vehicle_id":    jc.get("vehicleId") or jc.get("vehicle_id"),
         "customer_name": jc.get("customerName") or jc.get("customer_name"),
         "vehicle_make":  jc.get("vehicleMake")  or jc.get("vehicle_make"),
         "vehicle_model": jc.get("vehicleModel") or jc.get("vehicle_model"),
         "vehicle_year":  jc.get("vehicleYear")  or jc.get("vehicle_year"),
         "complaint":     jc.get("complaint"),
         "service_type":  jc.get("serviceType")  or jc.get("service_type"),
+    }
+
+
+def _map_jc_detail(jc: dict) -> dict:
+    return {
+        "id": jc.get("id"),
+        "created_at": jc.get("createdAt", ""),
+        "status": jc.get("status", "draft"),
+        "customer_id": jc.get("customerId") or jc.get("customer_id"),
+        "customer_name": jc.get("customerName") or jc.get("customer_name"),
+        "vehicle_id": jc.get("vehicleId") or jc.get("vehicle_id"),
+        "vehicle_make": jc.get("vehicleMake") or jc.get("vehicle_make"),
+        "vehicle_model": jc.get("vehicleModel") or jc.get("vehicle_model"),
+        "vehicle_year": jc.get("vehicleYear") or jc.get("vehicle_year"),
+        "vin": jc.get("vin"),
+        "mileage": jc.get("mileage"),
+        "complaint": jc.get("complaint"),
+        "service_type": jc.get("serviceType") or jc.get("service_type"),
+        "risk_indicators": jc.get("riskIndicators") or jc.get("risk_indicators") or [],
+        "obd_fault_codes": jc.get("obdFaultCodes") or jc.get("obd_fault_codes") or [],
+        "tasks": jc.get("tasks") or [],
+    }
+
+
+def _map_estimate(est: dict) -> dict:
+    estimation_json = est.get("estimation_json")
+    return {
+        "id": est.get("id"),
+        "job_card_id": est.get("job_card_id"),
+        "created_at": est.get("createdAt", ""),
+        "status": est.get("status", "pending_approval"),
+        "parts_total": est.get("parts_total", 0),
+        "labor_total": est.get("labor_total", 0),
+        "tax": est.get("tax", 0),
+        "total_amount": est.get("grand_total", 0),
+        "line_items": est.get("lineItems", []),
+        "estimation_json": estimation_json,
+        "estimate": estimation_json if isinstance(estimation_json, dict) else None,
     }
 
 
@@ -110,7 +149,31 @@ def get_history(customer_id: str):
     return [_map_jc(j) for j in db.get_customer_history(customer_id)]
 
 
+@router.get("/{customer_id}/latest-job", response_model=dict)
+def get_latest_job(customer_id: str):
+    job = db.get_latest_job_card(customer_id)
+    if not job:
+        raise HTTPException(status_code=404, detail=f"No jobs found for customer {customer_id}")
+    return _map_jc(job)
+
+
 @router.get("/{customer_id}/jobs", response_model=list[dict])
 def get_customer_jobs(customer_id: str, status: Optional[str] = None):
     rows = db.list_job_cards(status=status, customer_id=customer_id)
     return [_map_jc(j) for j in rows]
+
+
+@router.get("/{customer_id}/jobs/{job_id}", response_model=dict)
+def get_customer_job_detail(customer_id: str, job_id: str):
+    jc = db.get_job_card_for_customer(job_id, customer_id)
+    if not jc:
+        raise HTTPException(status_code=404, detail=f"Job card {job_id} not found")
+    return _map_jc_detail(jc)
+
+
+@router.get("/{customer_id}/jobs/{job_id}/estimate", response_model=dict)
+def get_customer_job_estimate(customer_id: str, job_id: str):
+    est = db.get_estimate_by_job_for_customer(job_id, customer_id)
+    if not est:
+        raise HTTPException(status_code=404, detail=f"No estimate for job {job_id}")
+    return _map_estimate(est)

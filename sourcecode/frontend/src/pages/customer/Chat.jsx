@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import { useAuth } from '../../hooks/useAuth'
 import { useAgent } from '../../hooks/useAgent'
 import { getEstimateByJob } from '../../api/estimates'
-import { getHistory } from '../../api/customers'
+import { getLatestJob, getVehicles } from '../../api/customers'
 import { approveEstimate, rejectEstimate } from '../../api/estimates'
 import { Send, CheckCircle, XCircle, ChevronDown, ChevronUp, PartyPopper } from 'lucide-react'
 
@@ -12,38 +12,62 @@ export default function CustomerChat() {
     const [messages, setMessages] = useState([])
     const [input, setInput] = useState('')
     const [pendingJob, setPendingJob] = useState(null)
+    const [latestJob, setLatestJob] = useState(null)
+    const [vehicleId, setVehicleId] = useState(null)
     const [estimate, setEstimate] = useState(null)
     const [expanded, setExpanded] = useState(false)
     const [celebrated, setCelebrated] = useState(false)
     const endRef = useRef()
+    const initForUserRef = useRef(null)
 
     const addMsg = (role, content) => setMessages(m => [...m, { role, content, ts: Date.now() }])
 
     useEffect(() => {
+        if (!user?.user_id) return
+        if (initForUserRef.current === user.user_id) return
+        initForUserRef.current = user.user_id
+
         // Simulate incoming notification from service centre
         const init = async () => {
             addMsg('system', `👋 Welcome back, **${user?.name}**! You have a message from the service centre.`)
             await new Promise(r => setTimeout(r, 800))
             try {
-                const hist = await getHistory(user?.user_id)
-                const pendingJobs = hist.data?.filter(j => j.status === 'pending_approval')
-                if (pendingJobs?.length) {
-                    const job = pendingJobs[0]
+                const [{ data: job }, { data: vehicles }] = await Promise.all([
+                    getLatestJob(user?.user_id),
+                    getVehicles(user?.user_id),
+                ])
+                setLatestJob(job || null)
+                const vehicleList = Array.isArray(vehicles) ? vehicles : []
+                const matchedVehicle = job?.vehicle_id
+                    ? vehicleList.find(v => v.id === job.vehicle_id)
+                    : null
+                const resolvedVehicleId = matchedVehicle?.id || vehicleList[0]?.id || null
+                setVehicleId(resolvedVehicleId)
+                if (job?.status === 'pending_approval') {
                     setPendingJob(job)
                     const est = await getEstimateByJob(job.id)
                     setEstimate(est.data)
-                    addMsg('system', `🔔 Your estimate for job **${job.id}** (${job.vehicle_make} ${job.vehicle_model}) is ready for review.`)
+                }
+
+                if (job?.id) {
+                    if (job.status !== 'pending_approval') {
+                        const statusLabel = (job.status || 'unknown').replace(/_/g, ' ')
+                        addMsg('system', `📌 Latest job **${job.id}** (${job.vehicle_make} ${job.vehicle_model}) status: **${statusLabel}**.`)
+                    }
                 } else {
-                    addMsg('system', `You have no pending estimates. Use the chat below to ask about your service status.`)
+                    addMsg('system', `You have no active jobs. Use the chat below to ask about your service status.`)
                 }
             } catch {
                 addMsg('system', `Your estimate for job **J002** is ready. Total: **₹5,900**. Please review and respond.`)
                 setEstimate({ id: 'E002', job_card_id: 'J002', status: 'pending_approval', parts_total: 3200, labor_total: 1800, tax: 900, total_amount: 5900 })
-                setPendingJob({ id: 'J002', vehicle_make: 'Hyundai', vehicle_model: 'Creta', vehicle_year: 2022, complaint: 'Fuel pressure low' })
+                const fallbackJob = { id: 'J002', vehicle_make: 'Hyundai', vehicle_model: 'Creta', vehicle_year: 2022, complaint: 'Fuel pressure low' }
+                setPendingJob(fallbackJob)
+                setLatestJob(fallbackJob)
+                setVehicleId(null)
             }
         }
         init()
-    }, [user])
+    }, [user?.user_id, user?.name])
 
     useEffect(() => { endRef.current?.scrollIntoView({ behavior: 'smooth' }) }, [messages, loading])
 
@@ -52,25 +76,79 @@ export default function CustomerChat() {
         if (!msg) return
         setInput('')
         addMsg('user', msg)
-        const res = await agentCall({ action: 'customer_qa', user_input: msg, job_card_id: pendingJob?.id })
-        const reply = res?.result?.reply || res?.result?.communication?.message || "Our team is looking into your query. I'll update you shortly!"
+        const storedUser = (() => {
+            try { return JSON.parse(localStorage.getItem('si_user')) } catch { return null }
+        })()
+        const customerId = user?.user_id || storedUser?.user_id
+        const jobForChat = pendingJob || latestJob
+        const resolvedVehicleId = jobForChat?.vehicle_id || vehicleId
+        if (!customerId || !jobForChat?.id || !resolvedVehicleId) {
+            addMsg('system', "I couldn't find your latest job card details. Please try again in a moment.")
+            return
+        }
+        const res = await agentCall({
+            action: 'chat',
+            question: msg,
+            customer_id: customerId,
+            job_card_id: jobForChat.id,
+            vehicle_id: resolvedVehicleId,
+        })
+        const reply =
+            res?.result?.reply ||
+            res?.result?.communication?.message ||
+            res?.message ||
+            res?.answer ||
+            "Our team is looking into your query. I'll update you shortly!"
         addMsg('system', reply)
     }
 
-    const approve = async () => {
-        if (!estimate) return
-        try { await approveEstimate(estimate.id) } catch { }
-        setEstimate(e => ({ ...e, status: 'approved' }))
+    const sendApproval = async (approvalText, fallbackMsg) => {
+        const storedUser = (() => {
+            try { return JSON.parse(localStorage.getItem('si_user')) } catch { return null }
+        })()
+        const customerId = user?.user_id || storedUser?.user_id
+        const jobForChat = pendingJob || latestJob
+        const resolvedVehicleId = jobForChat?.vehicle_id || vehicleId
+        if (!customerId || !jobForChat?.id || !resolvedVehicleId) {
+            addMsg('system', "I couldn't find your latest job card details. Please try again in a moment.")
+            return
+        }
+
+        try {
+            const res = await agentCall({
+                action: 'chat',
+                question: approvalText,
+                customer_id: customerId,
+                job_card_id: jobForChat.id,
+                vehicle_id: resolvedVehicleId,
+            })
+            const reply =
+                res?.result?.reply ||
+                res?.result?.communication?.message ||
+                res?.message ||
+                res?.answer ||
+                fallbackMsg
+            addMsg('system', reply)
+        } catch {
+            addMsg('system', fallbackMsg)
+        }
+
+        setEstimate(e => (e ? { ...e, status: approvalText.includes('reject') ? 'rejected' : 'approved' } : e))
         setPendingJob(null)
-        addMsg('system', `✅ **Estimate approved!** Great choice. We'll begin work on your vehicle right away. You'll receive updates here.`)
+    }
+
+    const approve = async () => {
+        await sendApproval(
+            'I approve the estimate.',
+            `✅ **Estimate approved!** Great choice. We'll begin work on your vehicle right away. You'll receive updates here.`
+        )
     }
 
     const reject = async () => {
-        if (!estimate) return
-        try { await rejectEstimate(estimate.id) } catch { }
-        setEstimate(e => ({ ...e, status: 'rejected' }))
-        setPendingJob(null)
-        addMsg('system', `Your rejection has been noted. Our service advisor will contact you shortly to discuss alternatives.`)
+        await sendApproval(
+            'I reject the estimate.',
+            `Your rejection has been noted. Our service advisor will contact you shortly to discuss alternatives.`
+        )
     }
 
     const renderContent = (content) => content.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
@@ -88,7 +166,7 @@ export default function CustomerChat() {
                                 <div className="bubble-system" dangerouslySetInnerHTML={{ __html: renderContent(m.content) }} />
 
                                 {/* Estimate card — show after notification */}
-                                {i === messages.length - 1 && estimate && estimate.status === 'pending_approval' && (
+                                {i === messages.length - 1 && estimate && ['pending_approval', 'pending'].includes(estimate.status) && (
                                     <div className="card anim-slideUp" style={{ marginTop: 12, border: '1px solid var(--border-hover)' }}>
                                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
                                             <div>
@@ -118,7 +196,10 @@ export default function CustomerChat() {
                                             </table>
                                         )}
 
-                                        <div style={{ display: 'flex', gap: 8 }}>
+                                        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                                            <button className="btn btn-outline" style={{ flex: 1, justifyContent: 'center' }} onClick={() => setExpanded(true)}>
+                                                View Estimate
+                                            </button>
                                             <button className="btn btn-success" style={{ flex: 1, justifyContent: 'center' }} onClick={approve}>
                                                 <CheckCircle size={15} /> Accept Estimate
                                             </button>
