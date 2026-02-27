@@ -300,6 +300,17 @@ def get_job_card(job_id: str) -> Optional[dict]:
         return next((j for j in _json("job_cards", "job_cards.json") if j["id"] == job_id), None)
     return None
 
+def get_job_card_for_customer(job_id: str, customer_id: str) -> Optional[dict]:
+    jc = get_job_card(job_id)
+    if not jc:
+        return None
+
+    normalized_customer_id = str(customer_id or "").strip().lower()
+    jc_customer_id = str(jc.get("customerId") or jc.get("customer_id") or "").strip().lower()
+    if normalized_customer_id and jc_customer_id == normalized_customer_id:
+        return jc
+    return None
+
 def create_job_card(data: dict) -> dict:
     import time, random, string as _string
     if data.get("id"):
@@ -425,6 +436,12 @@ def get_estimate_by_job(job_card_id: str) -> Optional[dict]:
             est["lineItems"] = [li for li in _json("eli", "estimate_line_item.json") if li.get("estimate_id") == est.get("id")]
         return est
     return None
+
+def get_estimate_by_job_for_customer(job_card_id: str, customer_id: str) -> Optional[dict]:
+    jc = get_job_card_for_customer(job_card_id, customer_id)
+    if not jc:
+        return None
+    return get_estimate_by_job(job_card_id)
 
 def get_estimate(estimate_id: str) -> Optional[dict]:
     if _db_available():

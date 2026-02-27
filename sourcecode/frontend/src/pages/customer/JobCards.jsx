@@ -1,10 +1,12 @@
 import { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { getCustomerJobs } from '../../api/customers'
 import { useAuth } from '../../hooks/useAuth'
 import StatusBadge from '../../components/ui/StatusBadge'
 import { Briefcase } from 'lucide-react'
 
 export default function CustomerJobCards() {
+    const navigate = useNavigate()
     const { user } = useAuth()
     const [jobs, setJobs] = useState([])
     const [filter, setFilter] = useState('all')
@@ -92,7 +94,11 @@ export default function CustomerJobCards() {
                         </thead>
                         <tbody>
                             {jobs.map((j, i) => (
-                                <tr key={j.id} style={{ '--i': i, animation: 'slideUp 0.3s ease calc(var(--i)*40ms) both' }}>
+                                <tr
+                                    key={j.id}
+                                    style={{ '--i': i, animation: 'slideUp 0.3s ease calc(var(--i)*40ms) both' }}
+                                    onClick={() => navigate(`/customer/jobs/${j.id}`)}
+                                >
                                     <td><code style={{ color: 'var(--primary)', fontSize: '0.8rem' }}>{j.id}</code></td>
                                     <td style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>
                                         {j.vehicle_make} {j.vehicle_model}

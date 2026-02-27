@@ -20,6 +20,7 @@ import ReportsPage from './pages/manager/Reports'
 // Customer pages
 import CustomerChat from './pages/customer/Chat'
 import CustomerJobCards from './pages/customer/JobCards'
+import CustomerJobCardDetail from './pages/customer/JobCardDetail'
 import ServiceHistory from './pages/customer/ServiceHistory'
 import MyVehicles from './pages/customer/MyVehicles'
 
@@ -36,6 +37,7 @@ const PAGE_TITLES = {
     '/manager/reports': 'Reports',
     '/customer/chat': 'AI Service Assistant',
     '/customer/jobs': 'My Job Cards',
+    '/customer/jobs/:id': 'Job Card Details',
     '/customer/history': 'Service History',
     '/customer/vehicles': 'My Vehicles',
 }
@@ -89,6 +91,7 @@ function AppRoutes() {
             {/* Customer (no sidebar-style — inline layout in component) */}
             <Route path="/customer/chat" element={<RequireAuth role="customer"><PortalLayout role="customer"><CustomerChat /></PortalLayout></RequireAuth>} />
             <Route path="/customer/jobs" element={<RequireAuth role="customer"><PortalLayout role="customer"><CustomerJobCards /></PortalLayout></RequireAuth>} />
+            <Route path="/customer/jobs/:id" element={<RequireAuth role="customer"><PortalLayout role="customer"><CustomerJobCardDetail /></PortalLayout></RequireAuth>} />
             <Route path="/customer/history" element={<RequireAuth role="customer"><PortalLayout role="customer"><ServiceHistory /></PortalLayout></RequireAuth>} />
             <Route path="/customer/vehicles" element={<RequireAuth role="customer"><PortalLayout role="customer"><MyVehicles /></PortalLayout></RequireAuth>} />
 
