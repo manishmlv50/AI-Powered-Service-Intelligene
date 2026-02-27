@@ -17,13 +17,6 @@ class EstimateResponse(BaseModel):
     currency: str
     notes: Optional[str] = None
 
-
-class ETAResponse(BaseModel):
-    agent: str
-    eta: str
-    schedule_notes: Optional[str] = None
-
-
 _client = get_responses_client()
 
 eta_agent = _client.as_agent(
@@ -46,12 +39,6 @@ async def _collect_json(agent, user_input: str) -> str:
         if event.text:
             full += event.text
     return full.strip()
-
-async def eta_tool(user_input: str) -> str:
-    raw = await _collect_json(eta_agent, user_input)
-    model = ETAResponse.model_validate_json(raw)
-    return model.model_dump_json()
-
 
 master_agent = _client.as_agent(
     name="master_agent",
@@ -94,8 +81,7 @@ master_agent = _client.as_agent(
     tools=[
         intake_tool,
         estimator_tool,
-        communication_tool,
-        eta_tool,
+        communication_tool
     ],
 )
 
