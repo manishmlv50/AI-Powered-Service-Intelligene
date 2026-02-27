@@ -20,6 +20,7 @@ export default function JobCardDetail() {
     const [estimate, setEstimate] = useState(null)
     const [saving, setSaving] = useState(false)
     const [toast, setToast] = useState(null)
+    const [savedOnce, setSavedOnce] = useState(false)
 
     const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms))
 
@@ -79,6 +80,7 @@ export default function JobCardDetail() {
             }
 
             showToast('Job card saved')
+            setSavedOnce(true)
         } catch (error) {
             showToast('Failed to save job card', 'error')
         } finally {
@@ -170,10 +172,12 @@ export default function JobCardDetail() {
     const currencyCode = typeof estimatePayload?.currency === 'string' && estimatePayload.currency.trim()
         ? estimatePayload.currency.trim().toUpperCase()
         : 'INR'
-    const currencySymbol = currencyCode === 'INR' ? '₹' : `${currencyCode} `
+    const currencySymbol = '$'
     const formatAmount = (value) => `${currencySymbol}${toNumber(value).toLocaleString('en-IN')}`
 
     const estimateStatus = estimatePayload?.status || estimate?.status || null
+    const estimateId = estimatePayload?.id || estimatePayload?.estimate_id || estimate?.id || estimate?.estimate_id || null
+    const isEstimateSaved = Boolean(estimateId)
 
     const f = (key, label, type = 'text') => (
         <div key={key} className="form-group">
@@ -197,9 +201,13 @@ export default function JobCardDetail() {
                     <div className="page-subtitle">{form.customer_name} · {form.vehicle_make} {form.vehicle_model} {form.vehicle_year}</div>
                 </div>
                 <div style={{ display: 'flex', gap: 8 }}>
-                    <button className="btn btn-outline btn-sm" onClick={save} disabled={saving}><Save size={14} /> {saving ? 'Saving…' : 'Save'}</button>
+                    <button className="btn btn-outline btn-sm" onClick={save} disabled={saving || savedOnce}><Save size={14} /> {saving ? 'Saving…' : 'Save'}</button>
                     {!estimate && <button className="btn btn-outline btn-sm" onClick={generateEstimate} disabled={aiLoading}><Sparkles size={14} /> Generate Estimate</button>}
-                    {estimate && form.status === 'draft' && <button className="btn btn-primary btn-sm" onClick={sendApproval}><Send size={14} /> Send for Approval</button>}
+                    {estimate && form.status === 'draft' && (
+                        <button className="btn btn-primary btn-sm" onClick={sendApproval} disabled={!isEstimateSaved}>
+                            <Send size={14} /> Send for Approval
+                        </button>
+                    )}
                     {form.status === 'in_progress' && <button className="btn btn-success btn-sm" onClick={markComplete}><CheckCircle size={14} /> Mark Complete</button>}
                 </div>
             </div>
@@ -313,7 +321,7 @@ export default function JobCardDetail() {
                             </div>
 
                             {form.status === 'draft' && (
-                                <button className="btn btn-primary" style={{ marginTop: 14, width: '100%', justifyContent: 'center' }} onClick={sendApproval}>
+                                <button className="btn btn-primary" style={{ marginTop: 14, width: '100%', justifyContent: 'center' }} onClick={sendApproval} disabled={!isEstimateSaved}>
                                     <Send size={15} /> Send for Customer Approval
                                 </button>
                             )}

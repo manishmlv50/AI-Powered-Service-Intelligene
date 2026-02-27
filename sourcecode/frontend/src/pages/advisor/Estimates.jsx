@@ -105,11 +105,11 @@ export default function EstimatesPage() {
                                         <td style={{ fontWeight: 500 }}>
                                             {j.customer_name}
                                         </td>
-                                        <td>₹{e.parts_total?.toLocaleString()}</td>
-                                        <td>₹{e.labor_total?.toLocaleString()}</td>
-                                        <td>₹{e.tax?.toLocaleString()}</td>
+                                        <td>${e.parts_total?.toLocaleString()}</td>
+                                        <td>${e.labor_total?.toLocaleString()}</td>
+                                        <td>${e.tax?.toLocaleString()}</td>
                                         <td style={{ fontWeight: 700, color: 'var(--primary)' }}>
-                                            ₹{e.total_amount?.toLocaleString()}
+                                            ${e.total_amount?.toLocaleString()}
                                         </td>
                                         <td>
                                             <StatusBadge status={e.status} />

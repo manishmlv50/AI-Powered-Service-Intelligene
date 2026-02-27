@@ -3,7 +3,6 @@ import { AuthProvider, useAuth } from './hooks/useAuth'
 import LoginPage from './pages/LoginPage'
 import Sidebar from './components/layout/Sidebar'
 import TopBar from './components/layout/TopBar'
-import AIFab from './components/layout/AIFab'
 
 // Advisor pages
 import AdvisorDashboard from './pages/advisor/Dashboard'
@@ -54,7 +53,6 @@ function PortalLayout({ role, children }) {
                     {children}
                 </main>
             </div>
-            <AIFab role={role} />
         </div>
     )
 }
