@@ -146,6 +146,8 @@ CREATE TABLE Job_Cards (
     risk_indicators  NVARCHAR(500)  NULL,  -- e.g. "high engine temperature,medium"
     obd_fault_codes  NVARCHAR(500)  NULL,  -- e.g. "P0301,P0128"
     obd_document_id  NVARCHAR(200)  NULL,
+    tasks            NVARCHAR(MAX)  NULL,  -- newline-separated task list
+    intake_payload_json NVARCHAR(MAX) NULL, -- persisted AI intake payload JSON
 
     -- Soft FK links (nullable — populated when VIN search resolves)
     customer_id      NVARCHAR(20)   NULL,

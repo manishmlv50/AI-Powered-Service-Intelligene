@@ -69,6 +69,7 @@ intake_agent = _client.as_agent(
         "  }\n"
         "}\n"
     ),
+    output_schema=AgentIntakeResponse,
     tools=[sql_lookup_tool],
 )
 

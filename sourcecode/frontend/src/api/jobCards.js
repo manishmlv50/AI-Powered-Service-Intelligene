@@ -1,6 +1,6 @@
 import api from './client'
 
-export const listJobCards = (params) => api.get('/job-cards', { params })
+export const listJobCards = (params, config = {}) => api.get('/job-cards', { ...config, params })
 export const getJobCard = id => api.get(`/job-cards/${id}`)
 export const createJobCard = data => api.post('/job-cards', data)
 export const updateJobCard = (id, data) => api.put(`/job-cards/${id}`, data)
