@@ -71,7 +71,7 @@ class SqlRepository:
         query_v1 = """
         SELECT TOP 1
             id AS vehicle_id,
-            customer_id,
+            customerId AS customer_id,
             make,
             model,
             year,
@@ -91,7 +91,7 @@ class SqlRepository:
             name,
             phone,
             email,
-            preferred_contact
+            preferredContact AS preferred_contact
         FROM Customers
         WHERE id = :customer_id
         """
@@ -117,12 +117,12 @@ class SqlRepository:
             """
             SELECT
                 id AS part_id,
-                id AS part_code,
-                name AS description,
-                unit_price,
+                code AS part_code,
+                description,
+                unitPrice AS unit_price,
                 category
             FROM Parts
-            WHERE id IN :part_codes
+            WHERE code IN :part_codes OR id IN :part_codes
             """
         ).bindparams(bindparam("part_codes", expanding=True))
         query_v1 = text(
@@ -166,12 +166,12 @@ class SqlRepository:
         query = text(
             """
             SELECT
-                fault_code,
+                faultCode AS fault_code,
                 description,
-                labor_operation_id,
-                warranty_eligible
-            FROM Fault_Code_Mappings
-            WHERE fault_code IN :fault_codes
+                laborOperationId AS labor_operation_id,
+                warrantyEligible AS warranty_eligible
+            FROM FaultCodes
+            WHERE faultCode IN :fault_codes
             """
         ).bindparams(bindparam("fault_codes", expanding=True))
 
@@ -194,7 +194,7 @@ class SqlRepository:
         query_v1 = """
         SELECT TOP 1
             id AS vehicle_id,
-            customer_id,
+            customerId AS customer_id,
             make,
             model,
             year,
@@ -216,9 +216,9 @@ class SqlRepository:
             SELECT
                 id AS labor_id,
                 name,
-                hourly_rate,
-                estimated_hours
-            FROM Labor_Operations
+                hourlyRate AS hourly_rate,
+                estimatedHours AS estimated_hours
+            FROM LaborOperations
             WHERE id IN :labor_ids
             """
         ).bindparams(bindparam("labor_ids", expanding=True))
@@ -295,6 +295,32 @@ class SqlRepository:
                 return self.fetch_one(query_v1, {"job_card_id": job_card_id})
             except Exception:
                 return self.fetch_one(query_v0, {"job_card_id": job_card_id})
+
+    def update_job_card_status(self, job_card_id: str, status: str) -> None:
+        query_v2 = """
+        UPDATE Job_Cards
+        SET status = :status
+        WHERE id = :job_card_id
+        """
+        query_v1 = """
+        UPDATE Job_Cards
+        SET status = :status
+        WHERE id = :job_card_id
+        """
+        query_v0 = """
+        UPDATE JobCards
+        SET status = :status
+        WHERE id = :job_card_id
+        """
+        params = {"job_card_id": job_card_id, "status": status}
+        with self.engine.begin() as conn:
+            try:
+                conn.execute(text(query_v2), params)
+            except Exception:
+                try:
+                    conn.execute(text(query_v1), params)
+                except Exception:
+                    conn.execute(text(query_v0), params)
 
     def get_estimate_by_job_card(self, job_card_id: str) -> dict[str, Any] | None:
         query_v2 = """

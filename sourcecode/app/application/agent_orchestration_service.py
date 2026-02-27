@@ -9,7 +9,7 @@ from app.domain.schemas import MasterAgentRequest, MasterAgentResponse
 
 def _build_prompt(payload: MasterAgentRequest) -> str:
     """Build a structured prompt that always carries the action field."""
-    if payload.action == "communication":
+    if payload.action in ("communication", "chat"):
         if not payload.customer_id or not payload.job_card_id:
             raise ValueError("communication action requires customer_id and job_card_id.")
         prompt_obj: dict = {
@@ -17,8 +17,11 @@ def _build_prompt(payload: MasterAgentRequest) -> str:
             "customer_id": payload.customer_id,
             "job_card_id": payload.job_card_id,
         }
-        if payload.question:
-            prompt_obj["question"] = payload.question
+        if payload.vehicle_id:
+            prompt_obj["vehicle_id"] = payload.vehicle_id
+        question = payload.question or payload.user_input
+        if question:
+            prompt_obj["question"] = question
         if payload.user_input:
             prompt_obj["user_input"] = payload.user_input
         if payload.context:

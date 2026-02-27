@@ -142,6 +142,19 @@ def _build_context(
     )
 
 
+def _extract_approval_action(question: str) -> str | None:
+    q = question.lower()
+    approve_hits = ["approve", "approved", "accept", "accepted"]
+    reject_hits = ["reject", "rejected", "decline", "declined"]
+    has_approve = any(hit in q for hit in approve_hits)
+    has_reject = any(hit in q for hit in reject_hits)
+    if has_approve and not has_reject:
+        return "approved"
+    if has_reject and not has_approve:
+        return "rejected"
+    return None
+
+
 async def _collect_json(agent, user_input: str) -> str:
     full = ""
     async for event in agent.run(user_input, stream=True):
@@ -170,11 +183,26 @@ async def customer_db_tool(
         )
 
     repo = _get_repo()
+    approval_action = _extract_approval_action(question)
 
-    def _run() -> SqlQuestionAnswerContext:
+    def _run() -> tuple[SqlQuestionAnswerContext, bool, bool]:
         customer = repo.get_customer_details(customer_id)
         vehicle = repo.get_vehicle_details(vehicle_id)
         job_card = repo.get_job_card_details(job_card_id)
+
+        status_value = (job_card or {}).get("status") if job_card else None
+        customer_match = True
+        if job_card:
+            job_card_customer = job_card.get("customer_id") or job_card.get("customerId")
+            if job_card_customer:
+                customer_match = str(job_card_customer) == str(customer_id)
+        pending_approval = status_value == "pending_approval" and customer_match
+        updated = False
+        if pending_approval and approval_action:
+            repo.update_job_card_status(job_card_id, approval_action)
+            if job_card is not None:
+                job_card["status"] = approval_action
+            updated = True
 
         estimate = repo.get_estimate_by_job_card(job_card_id)
         estimate_line_items: list[dict] = []
@@ -211,7 +239,8 @@ async def customer_db_tool(
             fault_codes = [code.strip() for code in raw_faults.split(",") if code.strip()]
         faults = repo.get_fault_code_details(fault_codes)
 
-        return _build_context(
+        return (
+            _build_context(
             customer=customer,
             vehicle=vehicle,
             parts=parts,
@@ -221,12 +250,29 @@ async def customer_db_tool(
             estimate=estimate,
             estimate_line_items=estimate_line_items,
             question=question,
+            ),
+            pending_approval,
+            updated,
         )
 
     try:
-        result = await asyncio.to_thread(_run)
+        result, pending_approval, updated = await asyncio.to_thread(_run)
     except Exception as exc:
         raise RuntimeError("Failed to retrieve customer chat data from SQL.") from exc
+
+    if pending_approval and not updated:
+        response = CustomerDbToolResult(
+            answer="Your job is pending approval. Please reply with 'approve' or 'reject'.",
+            context=result,
+        )
+        return response.model_dump_json()
+
+    if updated:
+        response = CustomerDbToolResult(
+            answer="Thanks. Your decision has been recorded.",
+            context=result,
+        )
+        return response.model_dump_json()
 
     payload = {
         "question": question,

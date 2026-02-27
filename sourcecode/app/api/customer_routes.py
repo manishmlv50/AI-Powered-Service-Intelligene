@@ -28,6 +28,7 @@ def _map_jc(jc: dict) -> dict:
         "created_at":    jc.get("createdAt", ""),
         "status":        jc.get("status"),
         "customer_id":   jc.get("customerId") or jc.get("customer_id"),
+        "vehicle_id":    jc.get("vehicleId") or jc.get("vehicle_id"),
         "customer_name": jc.get("customerName") or jc.get("customer_name"),
         "vehicle_make":  jc.get("vehicleMake")  or jc.get("vehicle_make"),
         "vehicle_model": jc.get("vehicleModel") or jc.get("vehicle_model"),
@@ -146,6 +147,14 @@ def update_vehicle(customer_id: str, vehicle_id: str, payload: dict):
 @router.get("/{customer_id}/history", response_model=list[dict])
 def get_history(customer_id: str):
     return [_map_jc(j) for j in db.get_customer_history(customer_id)]
+
+
+@router.get("/{customer_id}/latest-job", response_model=dict)
+def get_latest_job(customer_id: str):
+    job = db.get_latest_job_card(customer_id)
+    if not job:
+        raise HTTPException(status_code=404, detail=f"No jobs found for customer {customer_id}")
+    return _map_jc(job)
 
 
 @router.get("/{customer_id}/jobs", response_model=list[dict])
