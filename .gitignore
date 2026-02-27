@@ -114,3 +114,8 @@ temp/
 sourcecode/app/domain/__pycache__/schemas.cpython-311.pyc
 sourcecode/app/__pycache__/main.cpython-311.pyc
 sourcecode/app/__pycache__/main.cpython-311.pyc
+sourcecode/app/__pycache__/main.cpython-311.pyc
+sourcecode/app/api/__pycache__/speech_routes.cpython-311.pyc
+sourcecode/app/application/__pycache__/speech_service.cpython-311.pyc
+sourcecode/app/domain/__pycache__/schemas.cpython-311.pyc
+sourcecode/app/infrastructure/__pycache__/speech_client.cpython-311.pyc
