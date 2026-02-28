@@ -139,103 +139,131 @@ The system uses a **Master Orchestrator Agent** that coordinates specialist agen
 | **Communication Agent** | Customer-friendly explanations & negotiation   |
 | **Master Agent**        | Intent routing & multi-step orchestration      |
 
-### Enterprise Architecture Diagram
+### Solution Architecture Diagram
 
+```mermaid
 flowchart LR
 
-    %% Users
-    CU[Customer]
-    SA[Service Advisor]
-    WM[Workshop Manager]
+%% Users
+CU[Customer]:::user --> CP
+SA[Service Advisor]:::user --> AP
+WM[Workshop Manager]:::user --> MP
 
-    %% Frontend
-    subgraph FE[Service Intelligence Portal - React SPA]
-        CP[Customer Portal & Chat]
-        AP[Advisor Portal]
-        MP[Manager Dashboard]
-    end
+%% Frontend
+subgraph FE["Frontend - React SPA"]
+    CP[Customer Portal]:::fe
+    AP[Advisor Portal]:::fe
+    MP[Manager Dashboard]:::fe
+end
 
-    CU --> CP
-    SA --> AP
-    WM --> MP
+%% Backend
+subgraph BE["FastAPI Backend"]
+    AUTH[Auth API]:::be
+    JOB[Job API]:::be
+    ESTAPI[Estimate API]:::be
+    DASH[Dashboard API]:::be
+    AGAPI[Agent API]:::be
+    SPEECH[Speech API]:::be
+end
 
-    %% Backend
-    subgraph BE[FastAPI Backend]
-        AUTH[Auth & Role API]
-        JOB[Job Card API]
-        ESTAPI[Estimate API]
-        DASH[Dashboard API]
-        AGAPI[Master Agent API]
-        SPEECH[Speech API]
-    end
+CP --> BE
+AP --> BE
+MP --> BE
 
-    CP --> BE
-    AP --> BE
-    MP --> BE
+%% Agent Layer
+subgraph AG["AI Orchestration"]
+    MASTER[Master Agent]:::ai
+    INTAKE[Intake]:::ai
+    EST[Estimate]:::ai
+    COMM[Communication]:::ai
+end
 
-    %% Agent Layer
-    subgraph AG[AI Orchestration Layer]
-        MASTER[Master Orchestrator]
-        INTAKE[Intake Agent]
-        EST[Estimation Agent]
-        COMM[Communication Agent]
-    end
+AGAPI --> MASTER
+MASTER --> INTAKE
+MASTER --> EST
+MASTER --> COMM
 
-    AGAPI --> MASTER
-    MASTER --> INTAKE
-    MASTER --> EST
-    MASTER --> COMM
+%% AI Services
+subgraph AIS["Azure OpenAI"]
+    LLM[LLM]:::ai
+    STT[Speech-to-Text]:::ai
+end
 
-    %% AI Services
-    subgraph AI[Azure OpenAI Services]
-        LLM[LLM - Responses API]
-        STT[Speech-to-Text]
-    end
+MASTER --> LLM
+SPEECH --> STT
 
-    MASTER --> LLM
-    SPEECH --> STT
+%% Data
+subgraph DATA["Data Layer"]
+    SQL[(Azure SQL)]:::data
+    JSON[(JSON Fallback)]:::data
+end
 
-    %% Data Layer
-    subgraph DATA[Data Layer]
-        SQL[(Azure SQL Database)]
-        JSON[(JSON Synthetic Fallback)]
-    end
+JOB <--> SQL
+ESTAPI <--> SQL
+DASH <--> SQL
+BE --> JSON
 
-    JOB <--> SQL
-    ESTAPI <--> SQL
-    DASH <--> SQL
-    BE --> JSON
+%% Styles
+classDef user fill:#F4A261,stroke:#A65E2E,stroke-width:1px,color:#000;
+classDef fe fill:#A8DADC,stroke:#457B9D,stroke-width:1px,color:#000;
+classDef be fill:#BDE0FE,stroke:#1D3557,stroke-width:1px,color:#000;
+classDef ai fill:#CDB4DB,stroke:#6A4C93,stroke-width:1px,color:#000;
+classDef data fill:#E9ECEF,stroke:#6C757D,stroke-width:1px,color:#000;
+```
 
-![Enterprise Architecture](docs\assets\enterprise_architecture_diagram.png)
+### Functional Flow Diagram
 
+```mermaid
+flowchart TB
 
-### Process Flow Diagram
+%% =======================
+%% SWIMLANES
+%% =======================
 
-flowchart TD
+subgraph CUST["Customer"]
+    A[Customer Complaint or Voice Input]:::input
+    H[Customer Approval or Rejection]:::decision
+end
 
-    A[Customer Complaint or Voice Input]
-    B[Speech-to-Text (Optional)]
-    C[Intake Agent - Structure Complaint + OBD]
-    D[Structured Job Card Created]
-    E[Estimation Agent - Map Faults to Parts & Labor]
-    F[Itemized Estimate Generated]
-    G[Communication Agent - Customer Explanation]
-    H[Customer Approval / Rejection]
-    I[Job Card Status Updated]
-    J[Manager Dashboard Metrics Updated]
+subgraph AI["AI Agents"]
+    B[Speech to Text - Optional]:::ai
+    C[Intake Agent - Structure Complaint and OBD]:::ai
+    E[Estimation Agent - Map Faults to Parts and Labor]:::ai
+    G[Communication Agent - Customer Explanation]:::ai
+end
 
-    A --> B
-    A --> C
-    B --> C
-    C --> D
-    D --> E
-    E --> F
-    F --> G
-    G --> H
-    H --> I
-    I --> J
+subgraph SYS["System and Data"]
+    D[Structured Job Card Created]:::data
+    F[Itemized Estimate Generated]:::data
+    I[Job Card Status Updated]:::process
+    J[Manager Dashboard Metrics Updated]:::process
+end
 
-![Process flow](docs\assets\process_flow.png)
+%% =======================
+%% FLOW
+%% =======================
+
+A --> B
+A --> C
+B --> C
+C --> D
+D --> E
+E --> F
+F --> G
+G --> H
+H --> I
+I --> J
+
+%% =======================
+%% STYLES (Black Background Optimized)
+%% =======================
+
+classDef input fill:#00B4D8,stroke:#90E0EF,color:#ffffff,stroke-width:1px;
+classDef ai fill:#9D4EDD,stroke:#C77DFF,color:#ffffff,stroke-width:1px;
+classDef data fill:#2A9D8F,stroke:#52B788,color:#ffffff,stroke-width:1px;
+classDef decision fill:#F4A261,stroke:#FFBE0B,color:#000000,stroke-width:1px;
+classDef process fill:#3A86FF,stroke:#4CC9F0,color:#ffffff,stroke-width:1px;
+```
 
 
 ### Future Scope (Planned Agent)
@@ -291,7 +319,7 @@ This transforms the workshop from operational to predictive intelligence.
 
 # Architecture Overview
 
-## Layered Enterprise Architecture
+## Layered Solution Architecture
 
 Users → React SPA → FastAPI → Agent Orchestration → Azure OpenAI → Azure SQL
 
@@ -618,6 +646,6 @@ This software is provided for demonstration and educational purposes as part of 
 
 | Version | Date | Description |
 |---------|------|-------------|
-| 1.0.0 | TBD | Initial MVP release with Intake, Estimation, and Communication agents |
+| 1.0.0 | 28/02/2026 | Initial MVP release with Intake, Estimation, and Communication agents |
 
 ---
