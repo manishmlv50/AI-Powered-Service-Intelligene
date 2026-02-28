@@ -163,7 +163,19 @@ class SqlRepository:
         if not fault_codes:
             return []
 
-        query = text(
+        query_v2 = text(
+            """
+            SELECT
+                fault_code AS fault_code,
+                description,
+                labor_operation_id AS labor_operation_id,
+                warranty_eligible AS warranty_eligible
+            FROM Fault_Code_Mappings
+            WHERE fault_code IN :fault_codes
+            """
+        ).bindparams(bindparam("fault_codes", expanding=True))
+
+        query_v1 = text(
             """
             SELECT
                 faultCode AS fault_code,
@@ -175,8 +187,26 @@ class SqlRepository:
             """
         ).bindparams(bindparam("fault_codes", expanding=True))
 
+        query_v0 = text(
+            """
+            SELECT
+                fault_code AS fault_code,
+                description,
+                laborOperationId AS labor_operation_id,
+                warrantyEligible AS warranty_eligible
+            FROM Fault_Codes
+            WHERE fault_code IN :fault_codes
+            """
+        ).bindparams(bindparam("fault_codes", expanding=True))
+
         with self.engine.connect() as conn:
-            rows = conn.execute(query, {"fault_codes": list(fault_codes)}).mappings().all()
+            try:
+                rows = conn.execute(query_v2, {"fault_codes": list(fault_codes)}).mappings().all()
+            except Exception:
+                try:
+                    rows = conn.execute(query_v1, {"fault_codes": list(fault_codes)}).mappings().all()
+                except Exception:
+                    rows = conn.execute(query_v0, {"fault_codes": list(fault_codes)}).mappings().all()
             return [dict(row) for row in rows]
         
     def get_vehicle_by_registration(self, registration_number: str) -> dict[str, Any] | None:
