@@ -257,8 +257,6 @@ G --> H
 H --> I
 I --> J
 
-![Functional Flow](docs/assets/screenshots/functinal-flow.png) 
-
 %% =======================
 %% STYLES (Black Background Optimized)
 %% =======================
@@ -270,6 +268,7 @@ classDef decision fill:#F4A261,stroke:#FFBE0B,color:#000000,stroke-width:1px;
 classDef process fill:#3A86FF,stroke:#4CC9F0,color:#ffffff,stroke-width:1px;
 ```
 
+![Functional Flow](docs/assets/screenshots/functional-flow.png) 
 
 ### Future Scope (Planned Agent)
 
