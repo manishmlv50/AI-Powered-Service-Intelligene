@@ -254,7 +254,8 @@ class SqlRepository:
             service_type,
             mileage,
             risk_indicators,
-            advisor_id
+            advisor_id,
+            intake_payload_json
         FROM Job_Cards
         WHERE id = :job_card_id
         """
@@ -269,7 +270,8 @@ class SqlRepository:
             serviceType AS service_type,
             mileage,
             riskIndicators AS risk_indicators,
-            advisorId AS advisor_id
+            advisorId AS advisor_id,
+            intakePayloadJson AS intake_payload_json
         FROM Job_Cards
         WHERE id = :job_card_id
         """
@@ -284,7 +286,8 @@ class SqlRepository:
             service_type,
             mileage,
             risk_indicators,
-            advisor_id
+            advisor_id,
+            intake_payload_json
         FROM Job_Cards
         WHERE id = :job_card_id
         """

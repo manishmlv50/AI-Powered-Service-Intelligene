@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react'
-import { Bot, Send, X, Sparkles } from 'lucide-react'
+import { Send, X, Sparkles } from 'lucide-react'
 import { useAgent } from '../../hooks/useAgent'
 
 const QUICK_PROMPTS = {
@@ -47,7 +47,7 @@ export default function AIFab({ role = 'advisor' }) {
             50% { box-shadow: 0 0 0 14px rgba(108,99,255,0) }
           }
         `}</style>
-                {open ? <X size={22} color="#fff" /> : <Bot size={22} color="#fff" />}
+                {open ? <X size={22} color="#fff" /> : <span style={{ color: '#fff', fontWeight: 800, letterSpacing: '0.04em' }}>AI</span>}
             </button>
 
             {/* Panel */}

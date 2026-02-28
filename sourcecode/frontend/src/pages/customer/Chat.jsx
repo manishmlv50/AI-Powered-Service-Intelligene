@@ -58,7 +58,7 @@ export default function CustomerChat() {
                     addMsg('system', `You have no active jobs. Use the chat below to ask about your service status.`)
                 }
             } catch {
-                addMsg('system', `Your estimate for job **J002** is ready. Total: **₹5,900**. Please review and respond.`)
+                addMsg('system', `Your estimate for job **J002** is ready. Total: **$5,900**. Please review and respond.`)
                 setEstimate({ id: 'E002', job_card_id: 'J002', status: 'pending_approval', parts_total: 3200, labor_total: 1800, tax: 900, total_amount: 5900 })
                 const fallbackJob = { id: 'J002', vehicle_make: 'Hyundai', vehicle_model: 'Creta', vehicle_year: 2022, complaint: 'Fuel pressure low' }
                 setPendingJob(fallbackJob)
@@ -175,7 +175,7 @@ export default function CustomerChat() {
                                             </div>
                                             <div style={{ textAlign: 'right' }}>
                                                 <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Total</div>
-                                                <div style={{ fontSize: '1.3rem', fontWeight: 800, color: 'var(--primary)' }}>₹{estimate.total_amount?.toLocaleString()}</div>
+                                                <div style={{ fontSize: '1.3rem', fontWeight: 800, color: 'var(--primary)' }}>${estimate.total_amount?.toLocaleString()}</div>
                                             </div>
                                         </div>
 
@@ -189,9 +189,9 @@ export default function CustomerChat() {
                                             <table className="data-table" style={{ marginBottom: 10 }}>
                                                 <thead><tr><th>Item</th><th style={{ textAlign: 'right' }}>Amount</th></tr></thead>
                                                 <tbody>
-                                                    <tr><td>Parts</td><td style={{ textAlign: 'right' }}>₹{estimate.parts_total?.toLocaleString()}</td></tr>
-                                                    <tr><td>Labour</td><td style={{ textAlign: 'right' }}>₹{estimate.labor_total?.toLocaleString()}</td></tr>
-                                                    <tr><td>Tax (18% GST)</td><td style={{ textAlign: 'right' }}>₹{estimate.tax?.toLocaleString()}</td></tr>
+                                                    <tr><td>Parts</td><td style={{ textAlign: 'right' }}>${estimate.parts_total?.toLocaleString()}</td></tr>
+                                                    <tr><td>Labour</td><td style={{ textAlign: 'right' }}>${estimate.labor_total?.toLocaleString()}</td></tr>
+                                                    <tr><td>Tax (18% GST)</td><td style={{ textAlign: 'right' }}>${estimate.tax?.toLocaleString()}</td></tr>
                                                 </tbody>
                                             </table>
                                         )}

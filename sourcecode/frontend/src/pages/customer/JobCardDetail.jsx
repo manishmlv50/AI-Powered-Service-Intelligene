@@ -2,17 +2,21 @@ import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { ArrowLeft, Sparkles } from 'lucide-react'
 import { useAuth } from '../../hooks/useAuth'
+import { useAgent } from '../../hooks/useAgent'
 import { getCustomerJobDetail, getCustomerJobEstimate } from '../../api/customers'
+import { approveEstimate, rejectEstimate } from '../../api/estimates'
 import StatusBadge from '../../components/ui/StatusBadge'
 
 export default function CustomerJobCardDetail() {
     const { id } = useParams()
     const navigate = useNavigate()
     const { user } = useAuth()
+    const { call: agentCall } = useAgent()
 
     const [job, setJob] = useState(null)
     const [estimate, setEstimate] = useState(null)
     const [loading, setLoading] = useState(true)
+    const [approvalBusy, setApprovalBusy] = useState(false)
 
     const toNumber = (value) => {
         const parsed = Number(value)
@@ -117,10 +121,44 @@ export default function CustomerJobCardDetail() {
     const currencyCode = typeof estimatePayload?.currency === 'string' && estimatePayload.currency.trim()
         ? estimatePayload.currency.trim().toUpperCase()
         : 'INR'
-    const currencySymbol = currencyCode === 'INR' ? '₹' : `${currencyCode} `
+    const currencySymbol = '$'
     const formatAmount = (value) => `${currencySymbol}${toNumber(value).toLocaleString('en-IN')}`
 
     const estimateStatus = estimatePayload?.status || estimate?.status || null
+    const estimateId = estimatePayload?.id || estimatePayload?.estimate_id || estimate?.id || estimate?.estimate_id || null
+
+    const handleApproval = async (isReject) => {
+        if (!estimateId || approvalBusy) return
+        setApprovalBusy(true)
+        const jobCardId = job?.id || id
+        const vehicleId = job?.vehicle_id || estimatePayload?.vehicle_id || null
+        const customerId = user?.user_id || job?.customer_id || null
+        const approvalText = isReject ? 'I reject the estimate.' : 'I approve the estimate.'
+        try {
+            if (customerId && jobCardId && vehicleId) {
+                await agentCall({
+                    action: 'chat',
+                    question: approvalText,
+                    customer_id: customerId,
+                    job_card_id: jobCardId,
+                    vehicle_id: vehicleId,
+                })
+            }
+            if (isReject) {
+                await rejectEstimate(estimateId)
+                setEstimate(prev => (prev ? { ...prev, status: 'rejected' } : prev))
+                setJob(prev => (prev ? { ...prev, status: 'rejected' } : prev))
+            } else {
+                await approveEstimate(estimateId)
+                setEstimate(prev => (prev ? { ...prev, status: 'approved' } : prev))
+                setJob(prev => (prev ? { ...prev, status: 'approved' } : prev))
+            }
+        } catch (err) {
+            console.error('Approval update failed:', err)
+        } finally {
+            setApprovalBusy(false)
+        }
+    }
 
     return (
         <div className="page">
@@ -138,33 +176,61 @@ export default function CustomerJobCardDetail() {
             </div>
 
             <div className="grid-2" style={{ alignItems: 'start' }}>
-                <div className="card">
-                    <h3 style={{ fontWeight: 700, marginBottom: 16 }}>Job Details</h3>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-                        <div className="grid-2">
-                            <div className="form-group"><label className="form-label">Customer Name</label><input className="form-control" value={job.customer_name || ''} readOnly /></div>
-                            <div className="form-group"><label className="form-label">Service Type</label><input className="form-control" value={job.service_type || ''} readOnly /></div>
-                        </div>
-                        <div className="grid-2">
-                            <div className="form-group"><label className="form-label">Make</label><input className="form-control" value={job.vehicle_make || ''} readOnly /></div>
-                            <div className="form-group"><label className="form-label">Model</label><input className="form-control" value={job.vehicle_model || ''} readOnly /></div>
-                        </div>
-                        <div className="grid-2">
-                            <div className="form-group"><label className="form-label">Year</label><input className="form-control" value={job.vehicle_year || ''} readOnly /></div>
-                            <div className="form-group"><label className="form-label">Mileage</label><input className="form-control" value={job.mileage || ''} readOnly /></div>
-                        </div>
-                        <div className="form-group"><label className="form-label">VIN</label><input className="form-control" value={job.vin || ''} readOnly /></div>
-                        <div className="form-group">
-                            <label className="form-label">Complaint</label>
-                            <textarea className="form-control" rows={3} value={job.complaint || ''} readOnly />
-                        </div>
-                        {Array.isArray(job.obd_fault_codes) && job.obd_fault_codes.length > 0 && (
-                            <div className="form-group">
-                                <label className="form-label">OBD Fault Codes</label>
-                                <div>{job.obd_fault_codes.map(code => <span key={code} className="fault-code">{code}</span>)}</div>
+                <div>
+                    <div className="card">
+                        <h3 style={{ fontWeight: 700, marginBottom: 16 }}>Job Details</h3>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                            <div className="grid-2">
+                                <div className="form-group"><label className="form-label">Customer Name</label><input className="form-control" value={job.customer_name || ''} readOnly /></div>
+                                <div className="form-group"><label className="form-label">Service Type</label><input className="form-control" value={job.service_type || ''} readOnly /></div>
                             </div>
-                        )}
+                            <div className="grid-2">
+                                <div className="form-group"><label className="form-label">Make</label><input className="form-control" value={job.vehicle_make || ''} readOnly /></div>
+                                <div className="form-group"><label className="form-label">Model</label><input className="form-control" value={job.vehicle_model || ''} readOnly /></div>
+                            </div>
+                            <div className="grid-2">
+                                <div className="form-group"><label className="form-label">Year</label><input className="form-control" value={job.vehicle_year || ''} readOnly /></div>
+                                <div className="form-group"><label className="form-label">Mileage</label><input className="form-control" value={job.mileage || ''} readOnly /></div>
+                            </div>
+                            <div className="form-group"><label className="form-label">VIN</label><input className="form-control" value={job.vin || ''} readOnly /></div>
+                            <div className="form-group">
+                                <label className="form-label">Complaint</label>
+                                <textarea className="form-control" rows={3} value={job.complaint || ''} readOnly />
+                            </div>
+                            {Array.isArray(job.obd_fault_codes) && job.obd_fault_codes.length > 0 && (
+                                <div className="form-group">
+                                    <label className="form-label">OBD Fault Codes</label>
+                                    <div>{job.obd_fault_codes.map(code => <span key={code} className="fault-code">{code}</span>)}</div>
+                                </div>
+                            )}
+                        </div>
                     </div>
+
+                    {job.status === 'pending_approval' && estimatePayload && (
+                        <div className="card" style={{ marginTop: 16 }}>
+                            <h3 style={{ fontWeight: 700, marginBottom: 12 }}>Approval Required</h3>
+                            {approvalBusy && (
+                                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10, fontSize: '0.85rem', color: 'var(--text-muted)' }}>
+                                    <span className="typing-dot" />
+                                    <span className="typing-dot" />
+                                    <span className="typing-dot" />
+                                    Updating status…
+                                </div>
+                            )}
+                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 10 }}>
+                                <span style={{ fontWeight: 600 }}>Estimate Total</span>
+                                <span style={{ fontWeight: 800, color: 'var(--primary)' }}>{formatAmount(totalAmount)}</span>
+                            </div>
+                            <div style={{ display: 'flex', gap: 8 }}>
+                                <button className="btn btn-success" style={{ flex: 1, justifyContent: 'center' }} onClick={() => handleApproval(false)} disabled={approvalBusy || !estimateId}>
+                                    Approve Estimate
+                                </button>
+                                <button className="btn btn-danger" style={{ flex: 1, justifyContent: 'center' }} onClick={() => handleApproval(true)} disabled={approvalBusy || !estimateId}>
+                                    Reject Estimate
+                                </button>
+                            </div>
+                        </div>
+                    )}
                 </div>
 
                 <div>

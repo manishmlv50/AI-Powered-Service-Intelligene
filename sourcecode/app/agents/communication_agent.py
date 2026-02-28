@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import json
+import re
 
 from app.agents.client import get_responses_client
 from app.agents.customer_db_tool import customer_db_tool
@@ -48,6 +49,7 @@ communication_agent = _client.as_agent(
         "STEP 3 — BUILD RESPONSE USING TOOL DATA ONLY\n"
         "- Use ONLY the data returned from the called tool to answer the question.\n"
         "- If tool_result includes an 'answer' field, use it directly.\n"
+        "- Prefix $ for all amounts and costs in the response.\n"
         "- Keep tone professional and concise.\n\n"
 
         "========================\n"
@@ -71,6 +73,40 @@ async def _collect_json(agent, user_input: str) -> str:
         if event.text:
             full += event.text
     return full.strip()
+
+
+_AMOUNT_KEYWORDS = (
+    "total",
+    "amount",
+    "cost",
+    "price",
+    "labor",
+    "labour",
+    "parts",
+    "tax",
+    "payable",
+    "subtotal",
+    "grand total",
+)
+
+
+def _prefix_dollar_amounts(text: str) -> str:
+    if not text:
+        return text
+    keyword_pattern = "|".join(re.escape(word) for word in _AMOUNT_KEYWORDS)
+    pattern = re.compile(
+        rf"(?P<lead>\b(?:{keyword_pattern})\b[^\d\$]*)(?P<amount>(?:\d{{1,3}}(?:,\d{{3}})*|\d+)(?:\.\d{{1,2}})?)",
+        flags=re.IGNORECASE,
+    )
+
+    def _repl(match: re.Match) -> str:
+        lead = match.group("lead")
+        amount = match.group("amount")
+        if amount.startswith("$"):
+            return f"{lead}{amount}"
+        return f"{lead}${amount}"
+
+    return pattern.sub(_repl, text)
 
 
 async def communication_tool(user_input: str) -> str:
@@ -150,4 +186,5 @@ async def communication_tool(user_input: str) -> str:
     raw = await _collect_json(communication_agent, user_input)
     print("DEBUG RAW RESPONSE:", raw)
     model = AgentCommunicationResponse.model_validate_json(raw)
+    model.message = _prefix_dollar_amounts(model.message)
     return model.model_dump_json()
