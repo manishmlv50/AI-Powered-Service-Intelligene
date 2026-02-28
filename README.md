@@ -440,6 +440,74 @@ Estimates tied to job cards and users.
 
 ---
 
+# Challenges and Learnings
+
+## Challenges Faced
+
+### Multi-Agent Orchestration
+Coordinating multiple specialized agents (Intake, Estimation, Communication) through a master orchestrator required careful state management and context passing. Ensuring each agent received the right context while maintaining conversation flow was complex.
+
+### Structured LLM Outputs
+Getting consistent, schema-validated JSON responses from Azure OpenAI required extensive prompt engineering and Pydantic validation. Balancing flexibility with structure was key to reliable parsing.
+
+### OBD File Processing
+Converting unstructured OBD diagnostic files into actionable fault codes and system mappings required domain knowledge integration and robust parsing logic.
+
+### Real-Time UI Synchronization
+Keeping the React frontend in sync with backend agent states and multi-step workflows required careful state management and API design.
+
+### Azure Services Integration
+Configuring Azure OpenAI endpoints, managing API keys securely, and handling rate limits while maintaining graceful fallbacks to synthetic data.
+
+## Key Learnings
+
+### Agent Framework Architecture
+Learned to design agent systems with clear separation of concerns—each agent handles a specific domain while the orchestrator manages routing and context flow.
+
+### Prompt Engineering for Production
+Discovered the importance of structured prompts with explicit output schemas, few-shot examples, and validation layers for reliable AI responses in operational systems.
+
+### Graceful Degradation
+Implemented fallback mechanisms (JSON synthetic data) when Azure SQL is unavailable, ensuring the system remains functional during development and demos.
+
+### Domain Knowledge Integration
+Understanding automotive service workflows, OBD codes, and parts/labor estimation helped create more accurate and useful AI responses.
+
+### Hackathon MVP Scope Management
+Balanced feature completeness with time constraints by focusing on core value propositions (intake, estimation, communication) while keeping future enhancements (ETA/Risk agent) clearly scoped.
+
+---
+
+# Pre-requisites
+
+Before deploying the AI-Powered Service Intelligence system, ensure you have the following installed and configured:
+
+## Software Requirements
+
+* **Python 3.9+** - Required for the FastAPI backend
+* **Node.js 18+** and **npm** - Required for the React frontend
+* **Git** - For cloning the repository
+
+## Azure Services
+
+* **Azure OpenAI** - Access to Azure OpenAI service with API key
+* **Azure SQL Database** (Optional) - For production data storage (synthetic data fallback available)
+* **Azure Account** - For Azure services authentication
+
+## Environment Setup
+
+* Python virtual environment support
+* Network access to Azure services
+* Modern web browser (Chrome, Firefox, Edge, Safari)
+
+## API Keys & Configuration
+
+* Azure OpenAI API key and endpoint
+* Azure SQL connection string (if using SQL database)
+* Environment variables configured (see `.env.example` if available)
+
+---
+
 # Deployment
 
 ## Local Deployment
@@ -479,5 +547,77 @@ npm run build
 * Docker + CI/CD
 * Azure App Service / AKS deployment
 * Guardrails & explainability layer
+
+---
+
+# UI Screenshots
+
+## Customer View
+
+The customer portal provides an intuitive chat-based interface for interacting with the service center.
+
+### Customer Chat Interface
+![Customer Chat Interface](docs/assets/screenshots/customer-chat.png)
+*AI-powered chat interface for customers to receive estimates, ask questions, and approve/reject service recommendations.*
+
+### Customer Job Cards
+![Customer Job Cards](docs/assets/screenshots/customer-job-cards.png)
+*View and track all service job cards with real-time status updates.*
+
+### Customer Service History
+![Customer Service History](docs/assets/screenshots/customer-history.png)
+*Complete service history and vehicle maintenance records.*
+
+---
+
+## Service Advisor View
+
+The service advisor portal streamlines the intake and estimation process with AI assistance.
+
+### Service Advisor Dashboard
+![Service Advisor Dashboard](docs/assets/screenshots/advisor-dashboard.png)
+*Overview dashboard showing recent jobs, pending approvals, and quick actions for new intake.*
+
+### New Intake Flow
+![New Intake Flow](docs/assets/screenshots/advisor-intake.png)
+*AI-powered intake process converting customer complaints and OBD codes into structured job cards.*
+
+### Job Cards Management
+![Job Cards Management](docs/assets/screenshots/advisor-job-cards.png)
+*Comprehensive job card management with status filters, edit capabilities, and estimate generation.*
+
+---
+
+## Workshop Manager View
+
+The workshop manager dashboard provides real-time operational visibility and analytics.
+
+### Manager Dashboard
+![Manager Dashboard](docs/assets/screenshots/manager-dashboard.png)
+*Executive dashboard with KPIs, revenue at risk, delayed jobs, and operational metrics.*
+
+### Job Tracking & Analytics
+![Job Tracking](docs/assets/screenshots/manager-tracking.png)
+*Real-time job tracking with risk classification, ETA predictions, and workload distribution.*
+
+### Manager Reports
+![Manager Reports](docs/assets/screenshots/manager-reports.png)
+*Analytical reports and insights for data-driven decision making.*
+
+---
+
+# Disclaimer
+
+**THIS CODE IS PROVIDED AS IS WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESS OR IMPLIED, INCLUDING ANY IMPLIED WARRANTIES OF FITNESS FOR A PARTICULAR PURPOSE, MERCHANTABILITY, OR NON-INFRINGEMENT.**
+
+This software is provided for demonstration and educational purposes as part of a hackathon/MVP project. It uses synthetic data and is not intended for production use without proper security, testing, and compliance reviews.
+
+---
+
+# Version History
+
+| Version | Date | Description |
+|---------|------|-------------|
+| 1.0.0 | TBD | Initial MVP release with Intake, Estimation, and Communication agents |
 
 ---
