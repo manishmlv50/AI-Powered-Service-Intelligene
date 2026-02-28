@@ -211,6 +211,9 @@ classDef ai fill:#CDB4DB,stroke:#6A4C93,stroke-width:1px,color:#000;
 classDef data fill:#E9ECEF,stroke:#6C757D,stroke-width:1px,color:#000;
 ```
 
+![Solution Architecture](docs/assets/screenshots/solution-architecture.png) 
+
+
 ### Functional Flow Diagram
 
 ```mermaid
@@ -253,6 +256,8 @@ F --> G
 G --> H
 H --> I
 I --> J
+
+![Functional Flow](docs/assets/screenshots/functinal-flow.png) 
 
 %% =======================
 %% STYLES (Black Background Optimized)
@@ -610,6 +615,10 @@ The service advisor portal streamlines the intake and estimation process with AI
 ![New Intake Flow](docs/assets/screenshots/advisor-intake.png)
 *AI-powered intake process converting customer complaints and OBD codes into structured job cards.*
 
+### Advisor Estimate
+![Advisor Estimate](docs/assets/screenshots/advisor-estimate.png)
+*Advisor Estimate to generate the estimate based on the job-card.*
+
 ### Job Cards Management
 ![Job Cards Management](docs/assets/screenshots/advisor-job-cards.png)
 *Comprehensive job card management with status filters, edit capabilities, and estimate generation.*
@@ -624,13 +633,7 @@ The workshop manager dashboard provides real-time operational visibility and ana
 ![Manager Dashboard](docs/assets/screenshots/manager-dashboard.png)
 *Executive dashboard with KPIs, revenue at risk, delayed jobs, and operational metrics.*
 
-### Job Tracking & Analytics
-![Job Tracking](docs/assets/screenshots/manager-tracking.png)
-*Real-time job tracking with risk classification, ETA predictions, and workload distribution.*
 
-### Manager Reports
-![Manager Reports](docs/assets/screenshots/manager-reports.png)
-*Analytical reports and insights for data-driven decision making.*
 
 ---
 
