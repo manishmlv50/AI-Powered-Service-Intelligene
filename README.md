@@ -268,8 +268,6 @@ classDef decision fill:#F4A261,stroke:#FFBE0B,color:#000000,stroke-width:1px;
 classDef process fill:#3A86FF,stroke:#4CC9F0,color:#ffffff,stroke-width:1px;
 ```
 
-![Functional Flow](docs/assets/screenshots/functional-flow.png) 
-
 ### Future Scope (Planned Agent)
 
 | Agent                | Responsibility                                      |
@@ -579,6 +577,14 @@ npm run build
 * Docker + CI/CD
 * Azure App Service / AKS deployment
 * Guardrails & explainability layer
+
+---
+
+# Demo Video
+
+Watch the complete demo showcasing the AI-Powered Service Intelligence system in action:
+
+[Demo Video](docs/assets/demo-video/AI%20Powered%20Service%20Intelligence.mp4)
 
 ---
 
