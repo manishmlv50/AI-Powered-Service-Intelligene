@@ -585,8 +585,8 @@ npm run build
 Watch the complete demo showcasing the AI-Powered Service Intelligence system in action:
 
 <video width="800" controls>
-  <source src="https://raw.githubusercontent.com/manishmlv50/AI-Powered-Service-Intelligene/e7bba9ee1b0e3c103d77509271866667183998c5/docs/assets/demo-video/AI%20Powered%20Service%20Intelligence.mp4" type="video/mp4">
-  Your browser does not support the video tag. <a href="https://raw.githubusercontent.com/manishmlv50/AI-Powered-Service-Intelligene/e7bba9ee1b0e3c103d77509271866667183998c5/docs/assets/demo-video/AI%20Powered%20Service%20Intelligence.mp4">Download the video</a> instead.
+  <source src="https://github.com/manishmlv50/AI-Powered-Service-Intelligene/blob/main/docs/assets/demo-video/AI%20Powered%20Service%20Intelligence.mp4" type="video/mp4">
+  Your browser does not support the video tag. <a href="https://github.com/manishmlv50/AI-Powered-Service-Intelligene/blob/main/docs/assets/demo-video/AI%20Powered%20Service%20Intelligence.mp4">Download the video</a> instead.
 </video>
 
 ---
