@@ -22,6 +22,27 @@ export default function CustomerChat() {
 
     const addMsg = (role, content) => setMessages(m => [...m, { role, content, ts: Date.now() }])
 
+    const normalizeReply = (reply) => {
+        if (!reply) return reply
+        if (typeof reply === 'string') {
+            const trimmed = reply.trim()
+            if (trimmed.startsWith('{') && trimmed.endsWith('}')) {
+                try {
+                    const parsed = JSON.parse(trimmed)
+                    if (parsed && typeof parsed === 'object') {
+                        return parsed.response || parsed.message || parsed.answer || reply
+                    }
+                } catch {
+                    return reply
+                }
+            }
+        }
+        if (typeof reply === 'object') {
+            return reply.response || reply.message || reply.answer || reply
+        }
+        return reply
+    }
+
     useEffect(() => {
         if (!user?.user_id) return
         if (initForUserRef.current === user.user_id) return
@@ -95,11 +116,13 @@ export default function CustomerChat() {
         })
         const reply =
             res?.result?.reply ||
+            res?.result?.communication?.response ||
             res?.result?.communication?.message ||
+            res?.response ||
             res?.message ||
             res?.answer ||
             "Our team is looking into your query. I'll update you shortly!"
-        addMsg('system', reply)
+        addMsg('system', normalizeReply(reply))
     }
 
     const sendApproval = async (approvalText, fallbackMsg) => {
@@ -124,11 +147,13 @@ export default function CustomerChat() {
             })
             const reply =
                 res?.result?.reply ||
+                res?.result?.communication?.response ||
                 res?.result?.communication?.message ||
+                res?.response ||
                 res?.message ||
                 res?.answer ||
                 fallbackMsg
-            addMsg('system', reply)
+            addMsg('system', normalizeReply(reply))
         } catch {
             addMsg('system', fallbackMsg)
         }

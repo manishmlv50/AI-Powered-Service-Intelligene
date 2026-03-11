@@ -33,6 +33,10 @@ eta_agent = _client.as_agent(
 )
 
 
+async def eta_tool(user_input: str) -> str:
+    return await _collect_json(eta_agent, user_input)
+
+
 async def _collect_json(agent, user_input: str) -> str:
     full = ""
     async for event in agent.run(user_input, stream=True):
@@ -81,12 +85,56 @@ master_agent = _client.as_agent(
     tools=[
         intake_tool,
         estimator_tool,
-        communication_tool
+        communication_tool,
+        eta_tool,
     ],
 )
 
+
+def _extract_action(user_input: str) -> str | None:
+    try:
+        payload = json.loads(user_input)
+    except json.JSONDecodeError:
+        payload = None
+
+    if isinstance(payload, dict):
+        action = payload.get("action")
+        if isinstance(action, str) and action.strip():
+            return action.strip().lower()
+
+    prefix = "action:"
+    if isinstance(user_input, str) and user_input.lower().startswith(prefix):
+        first_line = user_input.splitlines()[0]
+        action = first_line[len(prefix):].strip().lower()
+        if action:
+            return action
+
+    return None
+
+
+async def _route_tool(user_input: str) -> str | None:
+    action = _extract_action(user_input)
+    if not action:
+        return None
+
+    if action == "intake":
+        return await intake_tool(user_input)
+    if action in ("estimator", "estimate"):
+        return await estimator_tool(user_input)
+    if action in ("communication", "chat"):
+        return await communication_tool(user_input)
+    if action == "eta":
+        return await eta_tool(user_input)
+
+    return None
+
+
 async def run_master_agent(user_input: str) -> dict:
-    raw = await _collect_json(master_agent, user_input)
+    routed = await _route_tool(user_input)
+    if routed is not None:
+        raw = routed
+    else:
+        raw = await _collect_json(master_agent, user_input)
     try:
         return json.loads(raw)
     except json.JSONDecodeError as exc:

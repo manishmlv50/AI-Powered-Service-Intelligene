@@ -3,16 +3,17 @@ from __future__ import annotations
 
 import json
 import re
+import traceback
 
 from app.agents.client import get_responses_client
 from app.agents.customer_db_tool import customer_db_tool
 from app.agents.sql_communication_tool import sql_communication_tool
-from app.domain.schemas import AgentCommunicationResponse
+from app.domain.schemas import AgentCommunicationResponse, CommunicationAgentRequest
 
 
 _client = get_responses_client()
 
-communication_agent = _client.as_agent(
+ascommunication_agent = _client.as_agent(
     name="communication_agent",
     instructions=(
         "ROLE: Communication Agent\n\n"
@@ -23,31 +24,16 @@ communication_agent = _client.as_agent(
         "========================\n"
         "INPUT STRUCTURE\n"
         "========================\n"
-        "The input will be a JSON object in this exact format:\n\n"
+        "The input will be a JSON serialization of the CommunicationAgentRequest Pydantic model.\n"
+        "It includes action, customer_id, job_card_id, vehicle_id, question, and tool_result.\n\n"
 
-        "{\n"
-        "  \"action\": \"communication | chat\",\n"
-        "  \"customer_id\": \"C001\",\n"
-        "  \"job_card_id\": \"J001\",\n"
-        "  \"vehicle_id\": \"V001\",\n"
-        "  \"question\": \"what is the job_status?\"\n"
-        "}\n\n"
-
-        "You MUST always read customer_id, job_card_id, vehicle_id, and question from the input JSON.\n\n"
+        "You MUST always read customer_id, job_card_id, vehicle_id, question, and tool_result from the input JSON.\n\n"
 
         "========================\n"
-        "TOOL SELECTION WORKFLOW\n"
+        "RESPONSE RULES\n"
         "========================\n"
-        "STEP 1 — INPUT ANALYSIS\n"
-        "- Extract action, customer_id, job_card_id, vehicle_id, question.\n\n"
-
-        "STEP 2 — TOOL USAGE BASED ON ACTION\n"
-        "- If action is 'communication': Call sql_communication_tool with customer_id and job_card_id.\n"
-        "- If action is 'chat': Call customer_db_tool with customer_id, job_card_id, vehicle_id, and question.\n"
-        "- You MUST call the appropriate tool BEFORE generating output when required fields are provided.\n\n"
-
-        "STEP 3 — BUILD RESPONSE USING TOOL DATA ONLY\n"
-        "- Use ONLY the data returned from the called tool to answer the question.\n"
+        "- NEVER call tools. Tools are executed upstream and their output is provided in tool_result.\n"
+        "- Use ONLY tool_result to answer the question.\n"
         "- If tool_result includes an 'answer' field, use it directly.\n"
         "- Prefix $ for all amounts and costs in the response.\n"
         "- Keep tone professional and concise.\n\n"
@@ -55,21 +41,15 @@ communication_agent = _client.as_agent(
         "========================\n"
         "OUTPUT FORMAT\n"
         "========================\n"
-        "Return ONLY JSON:\n\n"
-
-        "{\n"
-        "  \"agent\": \"communication_agent\",\n"
-        "  \"message\": \"...\",\n"
-        "  \"tone\": \"professional\"\n"
-        "}\n"
+        "Return ONLY raw JSON for the AgentCommunicationResponse Pydantic model.\n"
+        "The JSON MUST include: agent, response, tone.\n"
     ),
-    tools=[sql_communication_tool, customer_db_tool],
 )
 
 
 async def _collect_json(agent, user_input: str) -> str:
     full = ""
-    async for event in agent.run(user_input, stream=True):
+    async for event in agent.run(user_input, stream=True, options={"response_format": AgentCommunicationResponse}):
         if event.text:
             full += event.text
     return full.strip()
@@ -110,81 +90,120 @@ def _prefix_dollar_amounts(text: str) -> str:
 
 
 async def communication_tool(user_input: str) -> str:
-    tool_result = None
     try:
-        payload = json.loads(user_input)
-    except json.JSONDecodeError:
-        payload = None
+        tool_result = None
+        try:
+            payload = json.loads(user_input)
+        except json.JSONDecodeError:
+            payload = None
 
-    if isinstance(payload, dict):
-        action = payload.get("action")
-        customer_id = payload.get("customer_id")
-        job_card_id = payload.get("job_card_id")
-        vehicle_id = payload.get("vehicle_id")
-        question = payload.get("question")
+        if isinstance(payload, dict):
+            request = CommunicationAgentRequest.model_validate(payload)
+            action = request.action
+            customer_id = request.customer_id
+            job_card_id = request.job_card_id
+            vehicle_id = request.vehicle_id
+            question = request.question
 
-        if action == "chat":
-            missing = [
-                key
-                for key, value in {
-                    "customer_id": customer_id,
-                    "job_card_id": job_card_id,
-                    "vehicle_id": vehicle_id,
-                    "question": question,
-                }.items()
-                if not value
-            ]
-            if missing:
-                model = AgentCommunicationResponse(
-                    agent="communication_agent",
-                    message=(
-                        "Missing required fields: "
-                        + ", ".join(missing)
-                        + "."
-                    ),
-                    tone="professional",
+            if action == "chat":
+                missing = [
+                    key
+                    for key, value in {
+                        "customer_id": customer_id,
+                        "job_card_id": job_card_id,
+                        "vehicle_id": vehicle_id,
+                        "question": question,
+                    }.items()
+                    if not value
+                ]
+                if missing:
+                    model = AgentCommunicationResponse(
+                        agent="communication_agent",
+                        message=(
+                            "Missing required fields: "
+                            + ", ".join(missing)
+                            + "."
+                        ),
+                        tone="professional",
+                    )
+                    return model.model_dump_json(by_alias=True)
+                tool_result = await customer_db_tool(
+                    customer_id=customer_id,
+                    job_card_id=job_card_id,
+                    vehicle_id=vehicle_id,
+                    question=question,
                 )
-                return model.model_dump_json()
-            tool_result = await customer_db_tool(
+            else:
+                missing = [
+                    key
+                    for key, value in {
+                        "customer_id": customer_id,
+                        "job_card_id": job_card_id,
+                        "question": question,
+                    }.items()
+                    if not value
+                ]
+                if missing:
+                    model = AgentCommunicationResponse(
+                        agent="communication_agent",
+                        message=(
+                            "Missing required fields: "
+                            + ", ".join(missing)
+                            + "."
+                        ),
+                        tone="professional",
+                    )
+                    return model.model_dump_json(by_alias=True)
+                tool_result = await sql_communication_tool(
+                    customer_id=customer_id,
+                    job_card_id=job_card_id,
+                )
+
+            request = CommunicationAgentRequest(
+                action=action,
                 customer_id=customer_id,
                 job_card_id=job_card_id,
                 vehicle_id=vehicle_id,
                 question=question,
+                tool_result=json.loads(tool_result),
             )
+            user_input = request.model_dump_json(exclude_none=True)
         else:
-            missing = [
-                key
-                for key, value in {
-                    "customer_id": customer_id,
-                    "job_card_id": job_card_id,
-                    "question": question,
-                }.items()
-                if not value
-            ]
-            if missing:
-                model = AgentCommunicationResponse(
-                    agent="communication_agent",
-                    message=(
-                        "Missing required fields: "
-                        + ", ".join(missing)
-                        + "."
-                    ),
-                    tone="professional",
-                )
-                return model.model_dump_json()
-            tool_result = await sql_communication_tool(
-                customer_id=customer_id,
-                job_card_id=job_card_id,
+            model = AgentCommunicationResponse(
+                agent="communication_agent",
+                message="Invalid request payload. Expected JSON input.",
+                tone="professional",
             )
+            return model.model_dump_json(by_alias=True)
 
-        payload = {
-            **payload,
-            "tool_result": json.loads(tool_result),
-        }
-        user_input = json.dumps(payload)
+        raw = await _collect_json(communication_agent, user_input)
+        print("DEBUG RAW RESPONSE:", raw)
+        try:
+            parsed = json.loads(raw)
+        except json.JSONDecodeError:
+            parsed = {"response": raw}
 
-    raw = await _collect_json(communication_agent, user_input)
-    print("DEBUG RAW RESPONSE:", raw)
-    model = AgentCommunicationResponse.model_validate_json(raw)
-    model.message = _prefix_dollar_amounts(model.message)
-    return model.model_dump_json()
+        if isinstance(parsed, dict):
+            if "response" not in parsed and "message" in parsed:
+                parsed["response"] = parsed["message"]
+            parsed.setdefault("agent", "communication_agent")
+            parsed.setdefault("tone", "professional")
+        else:
+            parsed = {
+                "agent": "communication_agent",
+                "tone": "professional",
+                "response": str(parsed),
+            }
+
+        model = AgentCommunicationResponse.model_validate(parsed)
+        model.message = _prefix_dollar_amounts(model.message)
+        return model.model_dump_json(by_alias=True)
+    except Exception as exc:
+        error_msg = f"communication_tool failed: {str(exc)}\n{traceback.format_exc()}"
+        print("ERROR:", error_msg)
+        model = AgentCommunicationResponse(
+            agent="communication_agent",
+            message="communication_tool function failed to process the request.",
+            tone="professional",
+        )
+        return model.model_dump_json(by_alias=True)

@@ -6,6 +6,7 @@ import json
 
 from app.agents.client import get_responses_client
 from app.domain.schemas import (
+    CustomerDbQuestionRequest,
     CustomerDbAnswer,
     CustomerDbToolResult,
     SqlEstimateDetails,
@@ -34,12 +35,10 @@ customer_db_reasoner = _client.as_agent(
         "========================\n"
         "INPUT STRUCTURE\n"
         "========================\n"
-        "The input will be a JSON object in this exact format:\n\n"
-
-        "{\n"
-        "  \"question\": \"...\",\n"
-        "  \"context\": { ... }\n"
-        "}\n\n"
+        "The input will be a JSON serialization of the CustomerDbQuestionRequest Pydantic model.\n"
+        "It contains a 'context' field which is a SqlQuestionAnswerContext model.\n"
+        "The context includes: question, matched_topics, customer, vehicle, parts, faults, labor,\n"
+        "job_card (including intake_payload_json), estimate, estimate_line_items.\n\n"
 
         "========================\n"
         "STRICT INSTRUCTIONS\n"
@@ -53,7 +52,7 @@ customer_db_reasoner = _client.as_agent(
         "========================\n"
         "OUTPUT FORMAT (STRICT)\n"
         "========================\n"
-        "Return ONLY raw JSON in this exact format:\n\n"
+        "Return ONLY raw JSON for the CustomerDbAnswer Pydantic model:\n\n"
 
         "{\n"
         "  \"answer\": \"...\"\n"
@@ -76,6 +75,12 @@ def _normalize_job_card(job_card: dict | None) -> dict | None:
     created_at = normalized.get("created_at")
     if hasattr(created_at, "isoformat"):
         normalized["created_at"] = created_at.isoformat()
+    payload = normalized.get("intake_payload_json")
+    if isinstance(payload, str):
+        try:
+            normalized["intake_payload_json"] = json.loads(payload)
+        except Exception:
+            normalized["intake_payload_json"] = None
     risk_indicators = normalized.get("risk_indicators")
     if isinstance(risk_indicators, str):
         if not risk_indicators.strip():
@@ -83,6 +88,43 @@ def _normalize_job_card(job_card: dict | None) -> dict | None:
         else:
             normalized["risk_indicators"] = [risk_indicators]
     return normalized
+
+
+def _extract_parts_from_intake(job_card: dict | None) -> list[str]:
+    if not job_card:
+        return []
+    payload = job_card.get("intake_payload_json")
+    if isinstance(payload, str):
+        try:
+            payload = json.loads(payload)
+        except Exception:
+            return []
+    if not isinstance(payload, dict):
+        return []
+
+    candidates = []
+    for key in ("parts", "required_parts", "recommended_parts"):
+        value = payload.get(key)
+        if value:
+            candidates.append(value)
+    job_card_payload = payload.get("job_card")
+    if isinstance(job_card_payload, dict) and job_card_payload.get("parts"):
+        candidates.append(job_card_payload.get("parts"))
+
+    parts: list[str] = []
+    for value in candidates:
+        if isinstance(value, list):
+            for item in value:
+                if isinstance(item, str):
+                    parts.append(item)
+                elif isinstance(item, dict):
+                    name = item.get("name") or item.get("part_name") or item.get("description")
+                    if name:
+                        parts.append(str(name))
+        elif isinstance(value, str):
+            parts.append(value)
+
+    return [p.strip() for p in parts if str(p).strip()]
 
 
 def _normalize_estimate(estimate: dict | None) -> dict | None:
@@ -128,6 +170,7 @@ def _build_context(
             "faults",
             "labor",
             "job_card",
+            "intake_payload_json",
             "estimate",
             "estimate_line_items",
         ],
@@ -185,10 +228,11 @@ async def customer_db_tool(
     repo = _get_repo()
     approval_action = _extract_approval_action(question)
 
-    def _run() -> tuple[SqlQuestionAnswerContext, bool, bool]:
+    def _run() -> tuple[SqlQuestionAnswerContext, bool, bool, list[str]]:
         customer = repo.get_customer_details(customer_id)
         vehicle = repo.get_vehicle_details(vehicle_id)
         job_card = repo.get_job_card_details(job_card_id)
+        intake_parts = _extract_parts_from_intake(job_card)
 
         status_value = (job_card or {}).get("status") if job_card else None
         customer_match = True
@@ -253,10 +297,11 @@ async def customer_db_tool(
             ),
             pending_approval,
             updated,
+            intake_parts,
         )
 
     try:
-        result, pending_approval, updated = await asyncio.to_thread(_run)
+        result, pending_approval, updated, intake_parts = await asyncio.to_thread(_run)
     except Exception as exc:
         raise RuntimeError("Failed to retrieve customer chat data from SQL.") from exc
 
@@ -274,11 +319,16 @@ async def customer_db_tool(
         )
         return response.model_dump_json()
 
-    payload = {
-        "question": question,
-        "context": result.model_dump(),
-    }
-    raw = await _collect_json(customer_db_reasoner, json.dumps(payload))
+    if intake_parts and question and "part" in question.lower():
+        parts_text = ", ".join(intake_parts)
+        response = CustomerDbToolResult(
+            answer=f"The parts that need to be changed are: {parts_text}.",
+            context=result,
+        )
+        return response.model_dump_json()
+
+    payload = CustomerDbQuestionRequest(context=result)
+    raw = await _collect_json(customer_db_reasoner, payload.model_dump_json())
     answer = CustomerDbAnswer.model_validate_json(raw)
     response = CustomerDbToolResult(answer=answer.answer, context=result)
     return response.model_dump_json()

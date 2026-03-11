@@ -1,6 +1,7 @@
 """Pydantic schemas for all request/response models."""
 from __future__ import annotations
 from pydantic import BaseModel, Field
+from pydantic import ConfigDict
 from typing import Literal, Optional, List
 
 
@@ -200,6 +201,15 @@ class MasterAgentResponse(BaseModel):
     result: MasterAgentResult
 
 
+class CommunicationAgentRequest(BaseModel):
+    action: Optional[str] = None
+    customer_id: Optional[str] = None
+    job_card_id: Optional[str] = None
+    vehicle_id: Optional[str] = None
+    question: Optional[str] = None
+    tool_result: Optional[dict] = None
+
+
 # ─── Legacy (kept for compatibility) ─────────────────────────────────────────
 
 class IntakeResponse(BaseModel):
@@ -266,6 +276,10 @@ class SqlQuestionAnswerContext(BaseModel):
     estimate_line_items: Optional[List["SqlEstimateLineItemDetails"]] = None
 
 
+class CustomerDbQuestionRequest(BaseModel):
+    context: SqlQuestionAnswerContext
+
+
 class CustomerDbAnswer(BaseModel):
     answer: str
 
@@ -292,6 +306,7 @@ class SqlJobCardDetails(BaseModel):
     vehicle_model: Optional[str] = None
     vehicle_year: Optional[int] = None
     vin: Optional[str] = None
+    intake_payload_json: Optional[dict] = None
 
 class JobCardStatusResponse(BaseModel):
     job_card_id: str
@@ -358,6 +373,8 @@ class AgentEstimatorResponse(BaseModel):
     estimate: Estimate
 
 class AgentCommunicationResponse(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
     agent: str
-    message: str
+    message: str = Field(alias="response")
     tone: str
